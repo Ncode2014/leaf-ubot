@@ -7,6 +7,7 @@
 
 import os
 import signal
+import sys
 from distutils.util import strtobool as sb
 from logging import DEBUG, INFO, basicConfig, getLogger
 from platform import python_version

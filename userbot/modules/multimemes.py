@@ -351,14 +351,11 @@ async def hazz(hazmat):
                 m = f"/hazmat {level}"
                 msg_reply = await conv.send_message(m, reply_to=msg.id)
                 r = await conv.get_response()
-                response = await conv.get_response()
             elif reply_message.gif:
-                m = f"/hazmat"
+                m = "/hazmat"
                 msg_reply = await conv.send_message(m, reply_to=msg.id)
                 r = await conv.get_response()
-                response = await conv.get_response()
-            else:
-                response = await conv.get_response()
+            response = await conv.get_response()
             """don't spam notif"""
             await bot.send_read_acknowledge(conv.chat_id)
         except YouBlockedUserError:

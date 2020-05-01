@@ -330,12 +330,13 @@ async def unblockpm(unblock):
         name0 = str(replied_user.first_name)
         await unblock.client(UnblockRequest(replied_user.id))
         await unblock.edit("`You have been unblocked.`")
-        uid = replied_user.id
         if BOTLOG:
+            uid = replied_user.id
             await unblock.client.send_message(
                 BOTLOG_CHATID,
-                f"#UNBLOCKED\n" + "User: " + f"[{name0}](tg://user?id={uid})",
+                "#UNBLOCKED\n" + "User: " + f"[{name0}](tg://user?id={uid})",
             )
+
     elif unblock.is_group:
         await unblock.edit("`Please reply to user you want to unblock`")
         return

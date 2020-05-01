@@ -47,6 +47,10 @@ async def subprocess_run(cmd):
     return result
 
 
+class DirectDownloadLinkException(Exception):
+    pass
+
+
 @register(outgoing=True, pattern=r"^\.direct(?: |$)([\s\S]*)")
 async def direct_link_generator(request):
     """direct links generator"""
@@ -349,8 +353,7 @@ async def solid(url: str) -> str:
     }
     pageSource = requests.get(url, headers=headers).text
     mainOptions = str(re.search(r"viewerOptions\'\,\ (.*?)\)\;", pageSource).group(1))
-    reply = json.loads(mainOptions)["downloadUrl"]
-    return reply
+    return json.loads(mainOptions)["downloadUrl"]
 
 
 async def uptobox(request, url: str) -> str:
