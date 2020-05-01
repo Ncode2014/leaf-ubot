@@ -21,7 +21,7 @@ async def ssu(event):
     await event.edit("`Proccessing..`")
     video = f"wget {url} -O GenerateThumb"
     os.system(video)
-    command = f"vcsi -g 10x10 GenerateThumb -o GenerateThumb.png"
+    command = "vcsi -g 10x10 GenerateThumb -o GenerateThumb.png"
     os.system(command)
     await event.edit("`Uploading..`")
     await event.client.send_file(
