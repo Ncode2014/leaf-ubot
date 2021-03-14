@@ -4,42 +4,35 @@
 # you may not use this file except in compliance with the License.
 #
 
-from asyncio.exceptions import TimeoutError
+from hentai import Hentai
 
-from telethon import events
-from telethon.errors.rpcerrorlist import YouBlockedUserError
-
-from userbot import CMD_HELP, bot
+from userbot import CMD_HELP
 from userbot.events import register
+from userbot.modules.anime import post_to_telegraph
 
 
 @register(outgoing=True, pattern=r"^\.nhentai(?: |$)(.*)")
 async def _(event):
     if event.fwd_from:
         return
-    link = event.pattern_match.group(1)
-    chat = "@nHentaiBot"
+    code = event.pattern_match.group(1)
+    await event.edit("`Searching for doujin...`")
     try:
-        await event.edit("```Processing```")
-        async with bot.conversation(chat) as conv:
-            try:
-                response = conv.wait_event(
-                    events.NewMessage(incoming=True, from_users=424466890)
-                )
-                await bot.send_message(chat, link)
-                response = await response
-            except YouBlockedUserError:
-                await event.reply("```Please unblock @nHentaiBot and try again```")
-                return
-            if response.text.startswith("**Sorry I couldn't get manga from**"):
-                await event.edit("```I think this is not the right link```")
-            else:
-                await event.delete()
-                await bot.send_message(event.chat_id, response.message)
-    except TimeoutError:
-        await event.edit("`Error: ``@nHentaiBot`` is not responding!`")
+        doujin = Hentai(code)
+    except BaseException as n_e:
+        if "404" in str(n_e):
+            return await event.edit(f"`{code}` is not found!")
+        else:
+            return await event.edit(f"**Error: **`{n_e}`")
+    imgs = ""
+    for url in doujin.image_urls:
+        imgs += f"<img src='{url}'/>"
+    imgs = f"&#8205; {imgs}"
+    title = doujin.title()
+    graph_link = post_to_telegraph(title, imgs)
+    await event.edit(f"[{title}]({graph_link})", link_preview=True)
 
 
 CMD_HELP.update(
-    {"nhentai": ">`.nhentai` <link / code>" "\nUsage: view nhentai in telegra.ph XD\n"}
+    {"nhentai": ">`.nhentai` <code>" "\nUsage: View NHentai in Telegra.ph\n"}
 )
