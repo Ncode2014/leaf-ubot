@@ -1,12 +1,18 @@
-# Using Groovy
-FROM biansepang/weebproject:groovy
+# Using Python Slim-Buster
+FROM narima/nekadok:buster
 
 # Clone repo and prepare working directory
-RUN git clone -b master https://github.com/BianSepang/WeebProject /home/weebproject/
-RUN mkdir /home/weebproject/bin/
+RUN git clone https://github.com/BianSepang/WeebProject /home/weebproject/ \
+    && chmod 777 /home/weebproject \
+    && mkdir /home/weebproject/bin/
+
+# Copies config.env (if exists)
+COPY ./sample_config.env ./config.env* /home/weebproject/
+
+# Setup Working Directory
 WORKDIR /home/weebproject/
 
-# Make open port TCP
+# fix aria issue
 EXPOSE 80 443
 
 # Finalization
