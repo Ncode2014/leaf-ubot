@@ -3,6 +3,9 @@ FROM narima/nekadok:buster
 
 # Clone repo and prepare working directory
 RUN git clone https://github.com/BianSepang/WeebProject /home/weebproject/ \
+
+# Clone repo and prepare working directory
+RUN git clone -b master https://github.com/BianSepang/WeebProject /home/weebproject/ \
     && chmod 777 /home/weebproject \
     && mkdir /home/weebproject/bin/
 
@@ -14,6 +17,9 @@ WORKDIR /home/weebproject/
 
 # fix aria issue
 EXPOSE 80 443
+
+# Setup Working Directory
+WORKDIR /home/weebproject/
 
 # Finalization
 CMD ["python3","-m","userbot"]

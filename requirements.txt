@@ -7,7 +7,7 @@ CairoSVG
 cffi
 covid
 cowpy
-pydeezloader
+deezloader
 dnspython
 emoji
 gitpython
@@ -54,6 +54,7 @@ sqlalchemy<=1.3.23
 telegraph
 telethon
 telethon-session-sqlalchemy
+TgCrypto
 urbandict
 validators
 vcsi
@@ -65,3 +66,7 @@ wikipedia
 wordcloud
 youtube_search
 telethon-tgcrypto
+wikipedia
+wordcloud
+youtube_search
+yt-dlp
