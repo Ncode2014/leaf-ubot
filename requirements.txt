@@ -1,3 +1,4 @@
+aiofile
 aiohttp[speedups]
 appdirs
 aria2p
@@ -10,6 +11,7 @@ cowpy
 deezloader
 dnspython
 emoji
+Faker==8.1.2
 gitpython
 glitch_this
 google-api-python-client
@@ -31,7 +33,6 @@ lottie
 lxml
 lyricsgenius
 natsort
-nekos.py
 oauth2client
 pendulum
 Pillow
@@ -69,4 +70,4 @@ youtube_search
 telethon-tgcrypto
 wikipedia
 wordcloud
-youtube_search
+youtube-search

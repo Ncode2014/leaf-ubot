@@ -5,13 +5,13 @@
 #
 """ Userbot module containing various scrapers. """
 
-import asyncio
 import json
 import os
 import re
 import shutil
 import time
-from asyncio import sleep
+from asyncio import get_event_loop, sleep
+from glob import glob
 from re import findall
 from urllib.error import HTTPError
 from urllib.parse import quote_plus
@@ -29,9 +29,8 @@ from telethon.tl.types import DocumentAttributeAudio, DocumentAttributeVideo
 from urbandict import define
 from wikipedia import summary
 from wikipedia.exceptions import DisambiguationError, PageError
-from youtube_search import YoutubeSearch
-from yt_dlp import YoutubeDL
-from yt_dlp.utils import (
+from youtube_dl import YoutubeDL
+from youtube_dl.utils import (
     ContentTooShortError,
     DownloadError,
     ExtractorError,
@@ -41,6 +40,7 @@ from yt_dlp.utils import (
     UnavailableVideoError,
     XAttrMetadataError,
 )
+from youtube_search import YoutubeSearch
 
 from userbot import BOTLOG, BOTLOG_CHATID, CMD_HELP, TEMP_DOWNLOAD_DIRECTORY
 from userbot.events import register
@@ -60,7 +60,7 @@ async def setlang(prog):
 
 @register(outgoing=True, pattern=r"^\.carbon")
 async def carbon_api(e):
-    """ A Wrapper for carbon.now.sh """
+    """A Wrapper for carbon.now.sh"""
     await e.edit("`Processing...`")
     CARBON = "https://carbon.now.sh/?l={lang}&code={code}"
     global CARBONLANG
@@ -105,7 +105,7 @@ async def carbon_api(e):
 
 @register(outgoing=True, pattern=r"^\.img (.*)")
 async def img_sampler(event):
-    """ For .img command, search and return images matching the query. """
+    """For .img command, search and return images matching the query."""
     await event.edit("`Processing...`")
     query = event.pattern_match.group(1)
     lim = findall(r"lim=\d+", query)
@@ -164,7 +164,7 @@ async def moni(event):
 
 @register(outgoing=True, pattern=r"^\.google (.*)")
 async def gsearch(q_event):
-    """ For .google command, do a Google search. """
+    """For .google command, do a Google search."""
     match = q_event.pattern_match.group(1)
     page = findall(r"page=\d+", match)
     try:
@@ -201,7 +201,7 @@ async def gsearch(q_event):
 
 @register(outgoing=True, pattern=r"^\.wiki (.*)")
 async def wiki(wiki_q):
-    """ For .wiki command, fetch content from Wikipedia. """
+    """For .wiki command, fetch content from Wikipedia."""
     match = wiki_q.pattern_match.group(1)
     try:
         summary(match)
@@ -231,7 +231,7 @@ async def wiki(wiki_q):
 
 @register(outgoing=True, pattern=r"^\.ud (.*)")
 async def urban_dict(ud_e):
-    """ For .ud command, fetch content from Urban Dictionary. """
+    """For .ud command, fetch content from Urban Dictionary."""
     await ud_e.edit("Processing...")
     query = ud_e.pattern_match.group(1)
     try:
@@ -284,7 +284,7 @@ async def urban_dict(ud_e):
 
 @register(outgoing=True, pattern=r"^\.tts(?: |$)([\s\S]*)")
 async def text_to_speech(query):
-    """ For .tts command, a wrapper for Google Text-to-Speech. """
+    """For .tts command, a wrapper for Google Text-to-Speech."""
     textx = await query.get_reply_message()
     message = query.pattern_match.group(1)
     if message:
@@ -432,7 +432,7 @@ async def imdb(e):
 
 @register(outgoing=True, pattern=r"^\.trt(?: |$)([\s\S]*)")
 async def translateme(trans):
-    """ For .trt command, translate the given text using Google Translate. """
+    """For .trt command, translate the given text using Google Translate."""
     translator = Translator()
     textx = await trans.get_reply_message()
     message = trans.pattern_match.group(1)
@@ -472,7 +472,7 @@ async def translateme(trans):
 
 @register(pattern=".lang (trt|tts) (.*)", outgoing=True)
 async def lang(value):
-    """ For .lang command, change the default langauge of userbot scrapers. """
+    """For .lang command, change the default langauge of userbot scrapers."""
     util = value.pattern_match.group(1).lower()
 
     try:
@@ -557,17 +557,20 @@ async def yt_search(event):
     await event.edit(output, link_preview=False)
 
 
-@register(outgoing=True, pattern=r".rip(audio|video) (.*)")
+@register(outgoing=True, pattern=r".rip(audio|video( \d{0,4})?) (.*)")
 async def download_video(v_url):
-    """ For .rip command, download media from YouTube and many other sites. """
+    """For .rip command, download media from YouTube and many other sites."""
     dl_type = v_url.pattern_match.group(1).lower()
-    url = v_url.pattern_match.group(2)
+    reso = v_url.pattern_match.group(2)
+    reso = reso.strip() if reso else None
+    url = v_url.pattern_match.group(3)
 
     await v_url.edit("`Preparing to download...`")
+    s_time = time.time()
     video = False
     audio = False
 
-    if dl_type == "audio":
+    if "audio" in dl_type:
         opts = {
             "format": "bestaudio",
             "addmetadata": True,
@@ -589,22 +592,25 @@ async def download_video(v_url):
             "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
             "proxy": "",
             "logtostderr": False,
-            "external_downloader": "aria2c",
         }
         audio = True
 
-    elif dl_type == "video":
+    elif "video" in dl_type:
+        quality = (
+            f"bestvideo[height<={reso}]+bestaudio/best[height<={reso}]"
+            if reso
+            else "bestvideo+bestaudio/best"
+        )
         opts = {
-            "format": "best",
+            "format": quality,
             "addmetadata": True,
             "key": "FFmpegMetadata",
             "prefer_ffmpeg": True,
             "geo_bypass": True,
             "nocheckcertificate": True,
-            "postprocessors": [
-                {"key": "FFmpegVideoConvertor", "preferedformat": "mp4"}
-            ],
-            "outtmpl": "%(id)s.%(ext)s",
+            "outtmpl": os.path.join(
+                TEMP_DOWNLOAD_DIRECTORY, str(s_time), "%(title)s.%(ext)s"
+            ),
             "logtostderr": False,
             "quiet": True,
             "force-ipv4": True,
@@ -651,7 +657,7 @@ async def download_video(v_url):
                 client=v_url.client,
                 file=f,
                 name=f_name,
-                progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
+                progress_callback=lambda d, t: get_event_loop().create_task(
                     progress(
                         d, t, v_url, c_time, "Uploading..", f"{rip_data['title']}.mp3"
                     )
@@ -689,20 +695,24 @@ async def download_video(v_url):
             f"`Preparing to upload video:`\n**{rip_data.get('title')}**"
             f"\nby **{rip_data.get('uploader')}**"
         )
-        f_name = rip_data.get("id") + ".mp4"
-        with open(f_name, "rb") as f:
+        f_path = glob(os.path.join(TEMP_DOWNLOAD_DIRECTORY, str(s_time), "*"))[0]
+        # Noob way to convert from .mkv to .mp4
+        if f_path.endswith(".mkv"):
+            base = os.path.splitext(f_path)[0]
+            os.rename(f_path, base + ".mp4")
+            f_path = glob(os.path.join(TEMP_DOWNLOAD_DIRECTORY, str(s_time), "*"))[0]
+        f_name = os.path.basename(f_path)
+        with open(f_path, "rb") as f:
             result = await upload_file(
                 client=v_url.client,
                 file=f,
                 name=f_name,
-                progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
-                    progress(
-                        d, t, v_url, c_time, "Uploading..", f"{rip_data['title']}.mp4"
-                    )
+                progress_callback=lambda d, t: get_event_loop().create_task(
+                    progress(d, t, v_url, c_time, "Uploading..", f_name)
                 ),
             )
-        thumb_image = await get_video_thumb(f_name, "thumb.png")
-        metadata = extractMetadata(createParser(f_name))
+        thumb_image = await get_video_thumb(f_path, "thumb.png")
+        metadata = extractMetadata(createParser(f_path))
         duration = 0
         width = 0
         height = 0
@@ -724,15 +734,15 @@ async def download_video(v_url):
                     supports_streaming=True,
                 )
             ],
-            caption=rip_data["title"],
+            caption=f"[{rip_data.get('title')}]({url})",
         )
-        os.remove(f_name)
+        shutil.rmtree(os.path.join(TEMP_DOWNLOAD_DIRECTORY, str(s_time)))
         os.remove(thumb_image)
         await v_url.delete()
 
 
 def deEmojify(inputString):
-    """ Remove emojis and other non-safe characters from string """
+    """Remove emojis and other non-safe characters from string"""
     return get_emoji_regexp().sub("", inputString)
 
 
@@ -758,8 +768,11 @@ CMD_HELP.update(
         "\nUsage: Does a YouTube search."
         "\nCan specify the number of results needed (default is 3).",
         "imdb": ">`.imdb <movie-name>`" "\nUsage: Shows movie info and other stuff.",
-        "rip": ">`.ripaudio <url> or ripvideo <url>`"
-        "\nUsage: Download videos and songs from YouTube "
-        "(and [many other sites](https://ytdl-org.github.io/youtube-dl/supportedsites.html)).",
+        "rip": ">`.ripaudio <url>`"
+        "\nUsage: Download videos from YouTube and convert to audio "
+        "\n\n>`.ripvideo <quality> <url>` (quality is optional)"
+        "\nQuality examples : `144` `240` `360` `480` `720` `1080` `2160`"
+        "\nUsage: Download videos from YouTube"
+        "\n\n[Other supported sites](https://ytdl-org.github.io/youtube-dl/supportedsites.html)",
     }
 )
