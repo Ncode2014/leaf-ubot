@@ -118,7 +118,7 @@ async def fetch_info(replied_user, event):
     first_name = replied_user.user.first_name
     last_name = replied_user.user.last_name
     try:
-        dc_id, location = get_input_location(replied_user.profile_photo)
+        dc_id, _ = get_input_location(replied_user.profile_photo)
     except Exception as e:
         dc_id = "Couldn't fetch DC ID!"
         str(e)
@@ -139,7 +139,7 @@ async def fetch_info(replied_user, event):
     last_name = (
         last_name.replace("\u2060", "") if last_name else ("This User has no Last Name")
     )
-    username = "@{}".format(username) if username else ("This User has no Username")
+    username = f"@{username}" if username else ("This User has no Username")
     user_bio = "This User has no About" if not user_bio else user_bio
 
     caption = "<b>USER INFO:</b>\n\n"

@@ -149,9 +149,7 @@ async def moni(event):
             if currency_to in current_response["rates"]:
                 current_rate = float(current_response["rates"][currency_to])
                 rebmun = round(number * current_rate, 2)
-                await event.edit(
-                    "{} {} = {} {}".format(number, currency_from, rebmun, currency_to)
-                )
+                await event.edit(f"{number} {currency_from} = {rebmun} {currency_to}")
             else:
                 await event.edit(
                     "`This seems to be some alien currency, which I can't convert right now.`"
@@ -325,7 +323,7 @@ async def text_to_speech(query):
     if linecount == 1:
         tts = gTTS(message, lang=target_lang)
         tts.save("k.mp3")
-    with open("k.mp3", "r"):
+    with open("k.mp3"):
         await query.client.send_file(query.chat_id, "k.mp3", voice_note=True)
         os.remove("k.mp3")
         if BOTLOG:
@@ -360,24 +358,24 @@ async def imdb(e):
             mov_details = re.sub(r"\s+", " ", pg)
         else:
             mov_details = ""
-        credits = soup.findAll("div", "credit_summary_item")
-        if len(credits) == 1:
-            director = credits[0].a.text
+        mov_credits = soup.findAll("div", "credit_summary_item")
+        if len(mov_credits) == 1:
+            director = mov_credits[0].a.text
             writer = "Not available"
             stars = "Not available"
-        elif len(credits) > 2:
-            director = credits[0].a.text
-            writer = credits[1].a.text
+        elif len(mov_credits) > 2:
+            director = mov_credits[0].a.text
+            writer = mov_credits[1].a.text
             actors = []
-            for x in credits[2].findAll("a"):
+            for x in mov_credits[2].findAll("a"):
                 actors.append(x.text)
             actors.pop()
             stars = actors[0] + "," + actors[1] + "," + actors[2]
         else:
-            director = credits[0].a.text
+            director = mov_credits[0].a.text
             writer = "Not available"
             actors = []
-            for x in credits[1].findAll("a"):
+            for x in mov_credits[1].findAll("a"):
                 actors.append(x.text)
             actors.pop()
             stars = actors[0] + "," + actors[1] + "," + actors[2]
