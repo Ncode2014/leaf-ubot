@@ -62,7 +62,7 @@ async def download(target_file):
             diff = now - c_time
             percentage = downloader.get_progress() * 100
             speed = downloader.get_speed()
-            progress_str = "[{0}{1}] `{2}%`".format(
+            progress_str = "[{}{}] `{}%`".format(
                 "".join(["●" for i in range(math.floor(percentage / 10))]),
                 "".join(["○" for i in range(10 - math.floor(percentage / 10))]),
                 round(percentage, 2),
@@ -85,10 +85,10 @@ async def download(target_file):
                 LOGS.info(str(e))
         if downloader.isSuccessful():
             await target_file.edit(
-                "Downloaded to `{}` successfully !!".format(downloaded_file_name)
+                f"Downloaded to `{downloaded_file_name}` successfully !!"
             )
         else:
-            await target_file.edit("Incorrect URL\n{}".format(url))
+            await target_file.edit(f"Incorrect URL\n{url}")
     elif replied:
         if not replied.media:
             return await target_file.edit("`Reply to file or media `")
@@ -130,11 +130,11 @@ async def download(target_file):
         else:
             try:
                 await target_file.edit(
-                    "Downloaded to `{}` in `{}` seconds.".format(result.name, dl_time)
+                    f"Downloaded to `{result.name}` in `{dl_time}` seconds."
                 )
             except AttributeError:
                 await target_file.edit(
-                    "Downloaded to `{}` in `{}` seconds.".format(result, dl_time)
+                    f"Downloaded to `{result}` in `{dl_time}` seconds."
                 )
     else:
         await target_file.edit("See `.help download` for more info.")
@@ -230,10 +230,10 @@ async def upload(event):
         elif os.path.isdir(input_str):
             start_time = datetime.now()
             lst_files = []
-            for root, dirs, files in os.walk(input_str):
+            for root, _, files in os.walk(input_str):
                 for file in files:
                     lst_files.append(os.path.join(root, file))
-            if len(lst_files) == 0:
+            if not lst_files:
                 return await event.edit(f"`{input_str}` is empty.")
             await event.edit(f"Found `{len(lst_files)}` files. Now uploading...")
             for files in os_sorted(lst_files):

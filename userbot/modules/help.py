@@ -10,14 +10,14 @@ from userbot.events import register
 
 
 @register(outgoing=True, pattern=r"^\.help(?: |$)(.*)")
-async def help(event):
+async def help_handler(event):
     """For .help command."""
     args = event.pattern_match.group(1).lower()
     if args:
         if args in CMD_HELP:
             await event.edit(str(CMD_HELP[args]))
         else:
-            await event.edit("Please specify a valid module name.")
+            await event.edit(f"`{args}` is not a valid module name.")
     else:
         head = "Please specify which module do you want help for !!"
         head2 = f"Loaded Modules : {len(CMD_HELP)}"
