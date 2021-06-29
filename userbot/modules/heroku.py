@@ -131,7 +131,7 @@ async def dyno_usage(dyno):
     useragent = (
         "Mozilla/5.0 (Linux; Android 10; SM-G975F) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/81.0.4044.117 Mobile Safari/537.36"
+        "Chrome/90.0.4430.210 Mobile Safari/537.36"
     )
     user_id = Heroku.account().id
     headers = {

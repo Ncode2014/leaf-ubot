@@ -29,8 +29,9 @@ from telethon.tl.types import DocumentAttributeAudio, DocumentAttributeVideo
 from urbandict import define
 from wikipedia import summary
 from wikipedia.exceptions import DisambiguationError, PageError
-from youtube_dl import YoutubeDL
-from youtube_dl.utils import (
+from youtube_search import YoutubeSearch
+from yt_dlp import YoutubeDL
+from yt_dlp.utils import (
     ContentTooShortError,
     DownloadError,
     ExtractorError,
@@ -40,7 +41,6 @@ from youtube_dl.utils import (
     UnavailableVideoError,
     XAttrMetadataError,
 )
-from youtube_search import YoutubeSearch
 
 from userbot import BOTLOG, BOTLOG_CHATID, CMD_HELP, TEMP_DOWNLOAD_DIRECTORY
 from userbot.events import register
@@ -548,12 +548,55 @@ async def yt_search(event):
             channel = i["channel"]
             duration = i["duration"]
             views = i["views"]
-            output += f"[{title}]({link})\nChannel: `{channel}`\nDuration: {duration} | {views}\n\n"
+            owner = "https://youtube.com" + i["owner_url"]
+            output += f"[{title}]({link})\nChannel: [{channel}]({owner})\nDuration: {duration} | {views}\n\n"
         except IndexError:
             break
 
     await event.edit(output, link_preview=False)
 
+@register(outgoing=True, pattern=r"^\.reddit (.*)")
+async def reddit(event):
+    sub = event.pattern_match.group(1)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36 Avast/77.2.2153.120",
+    }
+
+    if len(sub) < 1:
+        await event.edit(
+            "`Please specify a Subreddit. Example: ``.reddit kopyamakarna`"
+        )
+        return
+
+    source = get(
+        f"https://www.reddit.com/r/{sub}/hot.json?limit=1", headers=headers
+    ).json()
+
+    if "kind" not in source:
+        if source["error"] == 404:
+            await event.edit("`No such Subreddit found.`")
+        elif source["error"] == 429:
+            await event.edit("`Reddit warns you to slow down.`")
+        else:
+            await event.edit(
+                "`Something happened but ... I don't know why it happened.`"
+            )
+        return
+    else:
+        await event.edit("`Data fetching...`")
+
+        data = source["data"]["children"][0]["data"]
+        message = f"**{data['title']}**\n⬆️{data['score']}\n\nBy: __u/{data['author']}__\n\n[Link](https://reddit.com{data['permalink']})"
+        try:
+            image = data["url"]
+            with open(f"reddit.jpg", "wb") as load:
+                load.write(get(image).content)
+
+            await event.client.send_file(event.chat_id, "reddit.jpg", caption=message)
+            os.remove("reddit.jpg")
+        except Exception as e:
+            print(e)
+            await event.edit(message + "\n\n`" + data["selftext"] + "`")
 
 @register(outgoing=True, pattern=r".rip(audio|video( \d{0,4})?) (.*)")
 async def download_video(v_url):
@@ -590,6 +633,7 @@ async def download_video(v_url):
             "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
             "proxy": "",
             "logtostderr": False,
+            "external_downloader": "aria2c",
         }
         audio = True
 
