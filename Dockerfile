@@ -15,11 +15,5 @@ COPY ./sample_config.env ./config.env* /home/weebproject/
 # Setup Working Directory
 WORKDIR /home/weebproject/
 
-
-
-
-
-
-
 # Finalization
 CMD ["python3","-m","userbot"]
