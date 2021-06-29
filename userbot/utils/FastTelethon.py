@@ -11,7 +11,6 @@ from typing import AsyncGenerator, Awaitable, BinaryIO, DefaultDict, Optional, U
 
 from telethon import TelegramClient, helpers, utils
 from telethon.crypto import AuthKey
-from telethon.errors import FloodWaitError
 from telethon.network import MTProtoSender
 from telethon.tl.alltlobjects import LAYER
 from telethon.tl.functions import InvokeWithLayerRequest

@@ -23,7 +23,6 @@ git+https://github.com/pawamoy/aria2p
 git+https://github.com/rthalley/dnspython
 git+https://github.com/TomyPrs/deezloader
 git+https://github.com/vstinner/hachoir
-https://raw.githubusercontent.com/Ncode2014/nekadok/req/heroku-dlp-master.zip
 gitpython
 glitch_this
 google-api-python-client
@@ -34,6 +33,7 @@ gTTS
 gTTS-token
 heroku3
 html_telegraph_poster
+https://raw.githubusercontent.com/Ncode2014/nekadok/req/heroku-dlp-master.zip
 jikanpy
 js2py
 lottie
