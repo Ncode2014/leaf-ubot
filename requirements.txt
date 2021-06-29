@@ -24,7 +24,6 @@ git+https://github.com/rthalley/dnspython
 git+https://github.com/TomyPrs/deezloader
 git+https://github.com/vstinner/hachoir
 git+https://github.com/yt-dlp/yt-dlp
-Faker==8.1.2
 gitpython
 glitch_this
 google-api-python-client
