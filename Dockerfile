@@ -2,10 +2,7 @@
 FROM narima/nekadok:buster
 
 # Clone repo and prepare working directory
-RUN git clone https://github.com/BianSepang/WeebProject /home/weebproject/ \
-
-# Clone repo and prepare working directory
-RUN git clone -b master https://github.com/BianSepang/WeebProject /home/weebproject/ \
+RUN git clone -b master https://github.com/Ncode2014/Re-Bot /home/weebproject/ \
     && chmod 777 /home/weebproject \
     && mkdir /home/weebproject/bin/
 
