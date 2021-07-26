@@ -629,7 +629,9 @@ async def download_video(v_url):
                     "preferredquality": "320",
                 }
             ],
-            "outtmpl": "%(id)s.%(ext)s",
+            "outtmpl": os.path.join(
+                TEMP_DOWNLOAD_DIRECTORY, str(s_time), "%(title)s.%(ext)s"
+            ),
             "quiet": True,
             "force-ipv4": True,
             "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
@@ -695,7 +697,7 @@ async def download_video(v_url):
             f"`Preparing to upload song:`\n**{rip_data.get('title')}**"
             f"\nby **{rip_data.get('uploader')}**"
         )
-        f_name = rip_data.get("id") + ".mp3"
+        f_name = glob(os.path.join(TEMP_DOWNLOAD_DIRECTORY, str(s_time), "*"))[0]
         with open(f_name, "rb") as f:
             result = await upload_file(
                 client=v_url.client,
@@ -707,13 +709,12 @@ async def download_video(v_url):
                     )
                 ),
             )
-        img_extensions = ["jpg", "jpeg", "webp"]
-        img_filenames = [
-            fn_img
-            for fn_img in os.listdir()
-            if any(fn_img.endswith(ext_img) for ext_img in img_extensions)
-        ]
-        thumb_image = img_filenames[0]
+
+        thumb_image = [
+            x
+            for x in glob(os.path.join(TEMP_DOWNLOAD_DIRECTORY, str(s_time), "*"))
+            if not x.endswith(".mp3")
+        ][0]
         metadata = extractMetadata(createParser(f_name))
         duration = 0
         if metadata.has("duration"):
@@ -731,8 +732,6 @@ async def download_video(v_url):
             ],
             thumb=thumb_image,
         )
-        os.remove(thumb_image)
-        os.remove(f_name)
         await v_url.delete()
     elif video:
         await v_url.edit(
@@ -780,7 +779,6 @@ async def download_video(v_url):
             ],
             caption=f"[{rip_data.get('title')}]({url})",
         )
-        shutil.rmtree(os.path.join(TEMP_DOWNLOAD_DIRECTORY, str(s_time)))
         os.remove(thumb_image)
         await v_url.delete()
 
