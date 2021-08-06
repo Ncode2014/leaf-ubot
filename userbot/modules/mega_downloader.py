@@ -55,7 +55,7 @@ async def subprocess_run(megadl, cmd):
 
 
 @register(outgoing=True, pattern=r"^\.mega(?: |$)(.*)")
-async def mega_downloader(megadl):
+async def mega_downloader(megadl):  # sourcery no-metrics
     await megadl.edit("`Collecting information...`")
     if not os.path.isdir(TEMP_DOWNLOAD_DIRECTORY):
         os.makedirs(TEMP_DOWNLOAD_DIRECTORY)

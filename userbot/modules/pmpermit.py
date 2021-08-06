@@ -36,88 +36,83 @@ DEF_UNAPPROVED_MSG = (
 async def permitpm(event):
     """Prohibits people from PMing you without approval. \
         Will block retarded nibbas automatically."""
-    if PM_AUTO_BAN:
-        self_user = await event.client.get_me()
-        if (
+    if not PM_AUTO_BAN:
+        return
+    self_user = await event.client.get_me()
+    if (
             event.is_private
             and event.chat_id != 777000
             and event.chat_id != self_user.id
             and not (await event.get_sender()).bot
         ):
-            try:
-                from userbot.modules.sql_helper.globals import gvarstatus
-                from userbot.modules.sql_helper.pm_permit_sql import is_approved
-            except AttributeError:
-                return
-            apprv = is_approved(event.chat_id)
-            notifsoff = gvarstatus("NOTIF_OFF")
+        try:
+            from userbot.modules.sql_helper.globals import gvarstatus
+            from userbot.modules.sql_helper.pm_permit_sql import is_approved
+        except AttributeError:
+            return
+        apprv = is_approved(event.chat_id)
+        notifsoff = gvarstatus("NOTIF_OFF")
 
-            # Use user custom unapproved message
-            getmsg = gvarstatus("unapproved_msg")
-            if getmsg is not None:
-                UNAPPROVED_MSG = getmsg
-            else:
-                UNAPPROVED_MSG = DEF_UNAPPROVED_MSG
-
+        # Use user custom unapproved message
+        getmsg = gvarstatus("unapproved_msg")
+        UNAPPROVED_MSG = getmsg if getmsg is not None else DEF_UNAPPROVED_MSG
             # This part basically is a sanity check
             # If the message that sent before is Unapproved Message
             # then stop sending it again to prevent FloodHit
-            if not apprv and event.text != UNAPPROVED_MSG:
-                if event.chat_id in LASTMSG:
-                    prevmsg = LASTMSG[event.chat_id]
-                    # If the message doesn't same as previous one
-                    # Send the Unapproved Message again
-                    if event.text != prevmsg:
-                        async for message in event.client.iter_messages(
-                            event.chat_id, from_user="me", search=UNAPPROVED_MSG
-                        ):
-                            await message.delete()
-                        await event.reply(f"`{UNAPPROVED_MSG}`")
-                    LASTMSG.update({event.chat_id: event.text})
-                else:
+        if not apprv and event.text != UNAPPROVED_MSG:
+            if event.chat_id in LASTMSG:
+                prevmsg = LASTMSG[event.chat_id]
+                # If the message doesn't same as previous one
+                # Send the Unapproved Message again
+                if event.text != prevmsg:
+                    async for message in event.client.iter_messages(
+                        event.chat_id, from_user="me", search=UNAPPROVED_MSG
+                    ):
+                        await message.delete()
                     await event.reply(f"`{UNAPPROVED_MSG}`")
-                    LASTMSG.update({event.chat_id: event.text})
+            else:
+                await event.reply(f"`{UNAPPROVED_MSG}`")
+            LASTMSG.update({event.chat_id: event.text})
+            if notifsoff:
+                await event.client.send_read_acknowledge(event.chat_id)
+            if event.chat_id not in COUNT_PM:
+                COUNT_PM.update({event.chat_id: 1})
+            else:
+                COUNT_PM[event.chat_id] = COUNT_PM[event.chat_id] + 1
 
-                if notifsoff:
-                    await event.client.send_read_acknowledge(event.chat_id)
-                if event.chat_id not in COUNT_PM:
-                    COUNT_PM.update({event.chat_id: 1})
-                else:
-                    COUNT_PM[event.chat_id] = COUNT_PM[event.chat_id] + 1
+            if COUNT_PM[event.chat_id] > 4:
+                await event.respond(
+                    "`You were spamming my PM.`\n"
+                    "`You have been blocked and reported as spam.`\n"
+                    "`Bye.`"
+                )
 
-                if COUNT_PM[event.chat_id] > 4:
-                    await event.respond(
-                        "`You were spamming my PM.`\n"
-                        "`You have been blocked and reported as spam.`\n"
-                        "`Bye.`"
-                    )
-
-                    try:
-                        del COUNT_PM[event.chat_id]
-                        del LASTMSG[event.chat_id]
-                    except KeyError:
-                        if BOTLOG:
-                            await event.client.send_message(
-                                BOTLOG_CHATID,
-                                "Count PM is seemingly going retard, please restart bot!",
-                            )
-                        return LOGS.info("CountPM went retard")
-
-                    await event.client(BlockRequest(event.chat_id))
-                    await event.client(ReportSpamRequest(peer=event.chat_id))
-
+                try:
+                    del COUNT_PM[event.chat_id]
+                    del LASTMSG[event.chat_id]
+                except KeyError:
                     if BOTLOG:
-                        name = await event.client.get_entity(event.chat_id)
-                        name0 = str(name.first_name)
                         await event.client.send_message(
                             BOTLOG_CHATID,
-                            "["
-                            + name0
-                            + "](tg://user?id="
-                            + str(event.chat_id)
-                            + ")"
-                            + " was spammed your PM and got blocked",
+                            "Count PM is seemingly going retard, please restart bot!",
                         )
+                    return LOGS.info("CountPM went retard")
+
+                await event.client(BlockRequest(event.chat_id))
+                await event.client(ReportSpamRequest(peer=event.chat_id))
+
+                if BOTLOG:
+                    name = await event.client.get_entity(event.chat_id)
+                    name0 = str(name.first_name)
+                    await event.client.send_message(
+                        BOTLOG_CHATID,
+                        "["
+                        + name0
+                        + "](tg://user?id="
+                        + str(event.chat_id)
+                        + ")"
+                        + " was spammed your PM and got blocked",
+                    )
 
 
 @register(disable_edited=True, outgoing=True, disable_errors=True)
@@ -140,11 +135,7 @@ async def auto_accept(event):
 
         # Use user custom unapproved message
         get_message = gvarstatus("unapproved_msg")
-        if get_message is not None:
-            UNAPPROVED_MSG = get_message
-        else:
-            UNAPPROVED_MSG = DEF_UNAPPROVED_MSG
-
+        UNAPPROVED_MSG = get_message if get_message is not None else DEF_UNAPPROVED_MSG
         chat = await event.get_chat()
         if isinstance(chat, User):
             if is_approved(event.chat_id) or chat.bot:
@@ -228,11 +219,7 @@ async def approvepm(apprvpm):
 
     # Get user custom msg
     getmsg = gvarstatus("unapproved_msg")
-    if getmsg is not None:
-        UNAPPROVED_MSG = getmsg
-    else:
-        UNAPPROVED_MSG = DEF_UNAPPROVED_MSG
-
+    UNAPPROVED_MSG = getmsg if getmsg is not None else DEF_UNAPPROVED_MSG
     async for message in apprvpm.client.iter_messages(
         apprvpm.chat_id, from_user="me", search=UNAPPROVED_MSG
     ):
@@ -345,7 +332,7 @@ async def unblockpm(unblock):
                 BOTLOG_CHATID,
                 f"#UNBLOCKED\n" + "User: " + f"[{name0}](tg://user?id={uid})",
             )
-    elif unblock.is_group and not unblock.reply_to_msg_id:
+    elif unblock.is_group:
         await unblock.edit("`Please reply to user you want to unblock`")
         return
     else:
@@ -377,15 +364,14 @@ async def add_pmsg(cust_msg):
             sql.delgvar("unapproved_msg")
             status = "Updated"
 
-        if message:
-            # TODO: allow user to have a custom text formatting
-            # eg: bold, underline, striketrough, link
-            # for now all text are in monoscape
-            msg = message.message  # get the plain text
-            sql.addgvar("unapproved_msg", msg)
-        else:
+        if not message:
             return await cust_msg.edit("`Reply to a message`")
 
+        # TODO: allow user to have a custom text formatting
+        # eg: bold, underline, striketrough, link
+        # for now all text are in monoscape
+        msg = message.message  # get the plain text
+        sql.addgvar("unapproved_msg", msg)
         await cust_msg.edit("`Message saved as unapproved message`")
 
         if BOTLOG:

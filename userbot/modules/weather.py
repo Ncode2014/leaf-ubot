@@ -5,6 +5,7 @@
 #
 """ Userbot module for getting the weather of a city. """
 
+
 import json
 from datetime import datetime
 
@@ -19,10 +20,7 @@ from userbot import WEATHER_DEFCITY
 from userbot.events import register
 
 # ===== CONSTANT =====
-if WEATHER_DEFCITY:
-    DEFCITY = WEATHER_DEFCITY
-else:
-    DEFCITY = None
+DEFCITY = WEATHER_DEFCITY or None
 # ====================
 
 
@@ -118,8 +116,7 @@ async def get_weather(weather):
         return temp[0]
 
     def sun(unix):
-        xx = datetime.fromtimestamp(unix, tz=ctimezone).strftime("%I:%M %p")
-        return xx
+        return datetime.fromtimestamp(unix, tz=ctimezone).strftime("%I:%M %p")
 
     await weather.edit(
         f"**Temperature:** `{celsius(curtemp)}°C | {fahrenheit(curtemp)}°F`\n"

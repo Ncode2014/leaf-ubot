@@ -23,11 +23,11 @@ MAX_MESSAGE_SIZE_LIMIT = 4095
 
 
 @register(outgoing=True, pattern=r"^\.ls(?: |$)(.*)")
-async def lst(event):
+async def lst(event):  # sourcery no-metrics
     if event.fwd_from:
         return
     cat = event.pattern_match.group(1)
-    path = cat if cat else os.getcwd()
+    path = cat or os.getcwd()
     if not exists(path):
         await event.edit(
             f"There is no such directory or file with the name `{cat}` check again!"
@@ -153,7 +153,7 @@ async def rname(event):
 
 
 @register(outgoing=True, pattern=r"^\.zip (.*)")
-async def zip_file(event):
+async def zip_file(event):  # sourcery no-metrics
     if event.fwd_from:
         return
     if not exists(TEMP_DOWNLOAD_DIRECTORY):

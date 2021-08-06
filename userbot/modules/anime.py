@@ -74,7 +74,7 @@ def getBannerLink(mal, kitsu_search=True):
     return getPosterLink(mal)
 
 
-def get_anime_manga(mal_id, search_type, _user_id):
+def get_anime_manga(mal_id, search_type, _user_id):  # sourcery no-metrics
     jikan = jikanpy.jikan.Jikan()
     if search_type == "anime_anime":
         result = jikan.anime(mal_id)

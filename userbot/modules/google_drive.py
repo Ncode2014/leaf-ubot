@@ -222,7 +222,7 @@ async def get_mimeType(name):
     return mimeType
 
 
-async def download(gdrive, service, uri=None):
+async def download(gdrive, service, uri=None):  # sourcery no-metrics
     global is_cancelled
     reply = ""
     """ - Download files to local then upload - """
@@ -268,9 +268,11 @@ async def download(gdrive, service, uri=None):
                 ),
             )
         except CancelProcess:
-            names = []
-            for name in os.listdir(TEMP_DOWNLOAD_DIRECTORY):
-                names.append(join(TEMP_DOWNLOAD_DIRECTORY, name))
+            names = [
+                join(TEMP_DOWNLOAD_DIRECTORY, name)
+                for name in os.listdir(TEMP_DOWNLOAD_DIRECTORY)
+            ]
+
             """ asumming newest files are the cancelled one """
             newest = max(names, key=getctime)
             os.remove(newest)
@@ -719,7 +721,7 @@ async def reset_parentId():
 
 
 @register(pattern=r"^\.gdlist(?: |$)(-l \d+)?(?: |$)?(.*)?(?: |$)", outgoing=True)
-async def lists(gdrive):
+async def lists(gdrive):  # sourcery no-metrics
     await gdrive.edit("`Getting information...`")
     checker = gdrive.pattern_match.group(1)
     if checker is not None:
@@ -734,25 +736,23 @@ async def lists(gdrive):
     else:
         page_size = 25  # default page_size is 25
     checker = gdrive.pattern_match.group(2)
-    if checker != "":
-        if checker.startswith("-p"):
-            parents = checker.split(None, 2)[1]
-            try:
-                name = checker.split(None, 2)[2]
-            except IndexError:
-                query = f"'{parents}' in parents and (name contains '*')"
-            else:
-                query = f"'{parents}' in parents and (name contains '{name}')"
-        else:
-            if re.search("-p (.*)", checker):
-                parents = re.search("-p (.*)", checker).group(1)
-                name = checker.split("-p")[0].strip()
-                query = f"'{parents}' in parents and (name contains '{name}')"
-            else:
-                name = checker
-                query = f"name contains '{name}'"
-    else:
+    if checker == "":
         query = ""
+    elif checker.startswith("-p"):
+        parents = checker.split(None, 2)[1]
+        try:
+            name = checker.split(None, 2)[2]
+        except IndexError:
+            query = f"'{parents}' in parents and (name contains '*')"
+        else:
+            query = f"'{parents}' in parents and (name contains '{name}')"
+    elif re.search("-p (.*)", checker):
+        parents = re.search("-p (.*)", checker).group(1)
+        name = checker.split("-p")[0].strip()
+        query = f"'{parents}' in parents and (name contains '{name}')"
+    else:
+        name = checker
+        query = f"name contains '{name}'"
     service = await create_app(gdrive)
     if service is False:
         return False
@@ -824,7 +824,7 @@ async def lists(gdrive):
 
 
 @register(pattern=r"^\.gdf (mkdir|rm|chck) (.*)", outgoing=True)
-async def google_drive_managers(gdrive):
+async def google_drive_managers(gdrive):    # sourcery no-metrics
     """- Google Drive folder/file management -"""
     await gdrive.edit("`Sending information...`")
     service = await create_app(gdrive)
@@ -842,8 +842,7 @@ async def google_drive_managers(gdrive):
             "mimeType": "application/vnd.google-apps.folder",
         }
         try:
-            if parent_Id is not None:
-                pass
+            pass
         except NameError:
             """- Fallback to G_DRIVE_FOLDER_ID else to root dir -"""
             if G_DRIVE_FOLDER_ID is not None:
@@ -991,7 +990,7 @@ async def cancel_process(gdrive):
 
 
 @register(pattern=r"^\.gd(?: |$)(.*)", outgoing=True)
-async def google_drive(gdrive):
+async def google_drive(gdrive):  # sourcery no-metrics
     reply = ""
     """ - Parsing all google drive function - """
     value = gdrive.pattern_match.group(1)
@@ -1077,20 +1076,16 @@ async def google_drive(gdrive):
                         f"`Reason` : {str(e)}\n\n"
                     )
                     continue
-            if reply:
-                await gdrive.respond(reply, link_preview=False)
-                await gdrive.delete()
-                return True
-            else:
+            if not reply:
                 return None
+            await gdrive.respond(reply, link_preview=False)
+            await gdrive.delete()
+            return True
         elif re.findall(r"\bhttps?://.*\.\S+", value) or "magnet:?" in value:
             uri = value.split()
         else:
             for fileId in value.split():
-                if any(map(str.isdigit, fileId)):
-                    one = True
-                else:
-                    one = False
+                one = any(map(str.isdigit, fileId))
                 if "-" in fileId or "_" in fileId:
                     two = True
                 else:
@@ -1111,12 +1106,11 @@ async def google_drive(gdrive):
                             f"`Reason` : {str(e)}\n\n"
                         )
                         continue
-            if reply:
-                await gdrive.respond(reply, link_preview=False)
-                await gdrive.delete()
-                return True
-            else:
+            if not reply:
                 return None
+            await gdrive.respond(reply, link_preview=False)
+            await gdrive.delete()
+            return True
         if not uri and not gdrive.reply_to_msg_id:
             await gdrive.edit(
                 "`[VALUE - ERROR]`\n\n"

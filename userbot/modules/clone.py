@@ -20,11 +20,7 @@ async def clone(cloner):
     """Clone first name, last name, bio and profile picture"""
     reply_message = cloner.reply_to_msg_id
     message = await cloner.get_reply_message()
-    if reply_message:
-        input_ = message.sender.id
-    else:
-        input_ = cloner.pattern_match.group(1)
-
+    input_ = message.sender.id if reply_message else cloner.pattern_match.group(1)
     if not input_:
         await cloner.edit("`Please reply to user or input username`")
         await asyncio.sleep(5)

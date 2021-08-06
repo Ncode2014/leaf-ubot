@@ -18,7 +18,7 @@ KATBIN_URL = "https://katb.in/"
 
 
 @register(outgoing=True, pattern=r"^\.paste(?: (k|d)|$)?(?: ([\s\S]+)|$)")
-async def paste(pstl):
+async def paste(pstl):  # sourcery no-metrics
     """For .paste command, pastes the text directly to nekobin/dogbin"""
     url_type = pstl.pattern_match.group(1)
     url_type = url_type.strip() if url_type else "n"

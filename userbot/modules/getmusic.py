@@ -38,7 +38,7 @@ async def getmusic(cat):
     for i in user_data:
         video_link = i.get_attribute("href")
         break
-    command = f"youtube-dl -x --add-metadata --embed-thumbnail --audio-format mp3 {video_link}"
+    command = f"yt-dlp -x --add-metadata --extractor-args 'player_client:android' --embed-thumbnail --audio-format mp3 {video_link}" # adding extractor-args to bypass throttling
     os.system(command)
     return video_link
 
@@ -52,7 +52,7 @@ async def getmusicvideo(cat):
     for i in user_data:
         video_link = i.get_attribute("href")
         break
-    command = 'youtube-dl -f "[filesize<50M]" --merge-output-format mp4 ' + video_link
+    command = 'yt-dlp -f "[filesize<50M]" --extractor-args "player_client:ios" --merge-output-format mp4 ' + video_link # adding extractor-args to bypass throttling 
     os.system(command)
 
 
@@ -293,7 +293,7 @@ async def _(event):
 @register(
     outgoing=True, pattern=r"^\.deez (now|.+)( FLAC| MP3\_320| MP3\_256| MP3\_128)?"
 )
-async def _(event):
+async def _(event):  # sourcery no-metrics
     """DeezLoader by @An0nimia. Ported for UniBorg by @SpEcHlDe"""
     if event.fwd_from:
         return

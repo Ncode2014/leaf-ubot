@@ -29,8 +29,9 @@ from telethon.tl.types import DocumentAttributeAudio, DocumentAttributeVideo
 from urbandict import define
 from wikipedia import summary
 from wikipedia.exceptions import DisambiguationError, PageError
-from youtube_dl import YoutubeDL
-from youtube_dl.utils import (
+from youtube_search import YoutubeSearch
+from yt_dlp import YoutubeDL
+from yt_dlp.utils import (
     ContentTooShortError,
     DownloadError,
     ExtractorError,
@@ -40,7 +41,6 @@ from youtube_dl.utils import (
     UnavailableVideoError,
     XAttrMetadataError,
 )
-from youtube_search import YoutubeSearch
 
 from userbot import BOTLOG, BOTLOG_CHATID, CMD_HELP, TEMP_DOWNLOAD_DIRECTORY
 from userbot.events import register
@@ -139,25 +139,25 @@ async def img_sampler(event):
 async def moni(event):
     input_str = event.pattern_match.group(1)
     input_sgra = input_str.split(" ")
-    if len(input_sgra) == 3:
-        try:
-            number = float(input_sgra[0])
-            currency_from = input_sgra[1].upper()
-            currency_to = input_sgra[2].upper()
-            request_url = f"https://api.ratesapi.io/api/latest?base={currency_from}"
-            current_response = get(request_url).json()
-            if currency_to in current_response["rates"]:
-                current_rate = float(current_response["rates"][currency_to])
-                rebmun = round(number * current_rate, 2)
-                await event.edit(f"{number} {currency_from} = {rebmun} {currency_to}")
-            else:
-                await event.edit(
-                    "`This seems to be some alien currency, which I can't convert right now.`"
-                )
-        except Exception as e:
-            await event.edit(str(e))
-    else:
+    if len(input_sgra) != 3:
         return await event.edit("`Invalid syntax.`")
+
+    try:
+        number = float(input_sgra[0])
+        currency_from = input_sgra[1].upper()
+        currency_to = input_sgra[2].upper()
+        request_url = f"https://api.ratesapi.io/api/latest?base={currency_from}"
+        current_response = get(request_url).json()
+        if currency_to in current_response["rates"]:
+            current_rate = float(current_response["rates"][currency_to])
+            rebmun = round(number * current_rate, 2)
+            await event.edit(f"{number} {currency_from} = {rebmun} {currency_to}")
+        else:
+            await event.edit(
+                "`This seems to be some alien currency, which I can't convert right now.`"
+            )
+    except Exception as e:
+        await event.edit(str(e))
 
 
 @register(outgoing=True, pattern=r"^\.google (.*)")
@@ -209,9 +209,8 @@ async def wiki(wiki_q):
         return await wiki_q.edit(f"Page not found.\n\n{pageerror}")
     result = summary(match)
     if len(result) >= 4096:
-        file = open("output.txt", "w+")
-        file.write(result)
-        file.close()
+        with open("output.txt", "w+") as file:
+            file.write(result)
         await wiki_q.client.send_file(
             wiki_q.chat_id,
             "output.txt",
@@ -243,17 +242,16 @@ async def urban_dict(ud_e):
     if int(meanlen) >= 0:
         if int(meanlen) >= 4096:
             await ud_e.edit("`Output too large, sending as file.`")
-            file = open("output.txt", "w+")
-            file.write(
-                "Text: "
-                + query
-                + "\n\nMeaning: "
-                + mean[0]["def"]
-                + "\n\n"
-                + "Example: \n"
-                + mean[0]["example"]
-            )
-            file.close()
+            with open("output.txt", "w+") as file:
+                file.write(
+                    "Text: "
+                    + query
+                    + "\n\nMeaning: "
+                    + mean[0]["def"]
+                    + "\n\n"
+                    + "Example: \n"
+                    + mean[0]["example"]
+                )
             await ud_e.client.send_file(
                 ud_e.chat_id,
                 "output.txt",
@@ -548,12 +546,55 @@ async def yt_search(event):
             channel = i["channel"]
             duration = i["duration"]
             views = i["views"]
-            output += f"[{title}]({link})\nChannel: `{channel}`\nDuration: {duration} | {views}\n\n"
+            owner = "https://youtube.com" + i["owner_url"]
+            output += f"[{title}]({link})\nChannel: [{channel}]({owner})\nDuration: {duration} | {views}\n\n"
         except IndexError:
             break
 
     await event.edit(output, link_preview=False)
 
+@register(outgoing=True, pattern=r"^\.reddit (.*)")
+async def reddit(event):
+    sub = event.pattern_match.group(1)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36 Avast/77.2.2153.120",
+    }
+
+    if len(sub) < 1:
+        await event.edit(
+            "`Please specify a Subreddit. Example: ``.reddit kopyamakarna`"
+        )
+        return
+
+    source = get(
+        f"https://www.reddit.com/r/{sub}/hot.json?limit=1", headers=headers
+    ).json()
+
+    if "kind" not in source:
+        if source["error"] == 404:
+            await event.edit("`No such Subreddit found.`")
+        elif source["error"] == 429:
+            await event.edit("`Reddit warns you to slow down.`")
+        else:
+            await event.edit(
+                "`Something happened but ... I don't know why it happened.`"
+            )
+        return
+    else:
+        await event.edit("`Data fetching...`")
+
+        data = source["data"]["children"][0]["data"]
+        message = f"**{data['title']}**\n⬆️{data['score']}\n\nBy: __u/{data['author']}__\n\n[Link](https://reddit.com{data['permalink']})"
+        try:
+            image = data["url"]
+            with open(f"reddit.jpg", "wb") as load:
+                load.write(get(image).content)
+
+            await event.client.send_file(event.chat_id, "reddit.jpg", caption=message)
+            os.remove("reddit.jpg")
+        except Exception as e:
+            print(e)
+            await event.edit(message + "\n\n`" + data["selftext"] + "`")
 
 @register(outgoing=True, pattern=r".rip(audio|video( \d{0,4})?) (.*)")
 async def download_video(v_url):
@@ -589,6 +630,11 @@ async def download_video(v_url):
             ),
             "quiet": True,
             "logtostderr": False,
+            "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+            "proxy": "",
+            "extractor-args": "youtube:player_client=_music",
+            "external_downloader": "aria2c",
+
         }
         audio = True
 
@@ -610,6 +656,10 @@ async def download_video(v_url):
             ),
             "logtostderr": False,
             "quiet": True,
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75",
+            "proxy": "",
+            "extractor-args": "youtube:player_client=all",
+            "external_downloader": "aria2c",
         }
         video = True
 

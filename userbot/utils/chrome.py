@@ -30,8 +30,7 @@ async def chrome(chrome_options=None):
         os.mkdir(TEMP_DOWNLOAD_DIRECTORY)
     prefs = {"download.default_directory": TEMP_DOWNLOAD_DIRECTORY}
     chrome_options.add_experimental_option("prefs", prefs)
-    driver = webdriver.Chrome(executable_path=CHROME_DRIVER, options=chrome_options)
-    return driver
+    return webdriver.Chrome(executable_path=CHROME_DRIVER, options=chrome_options)
 
 
 async def options():

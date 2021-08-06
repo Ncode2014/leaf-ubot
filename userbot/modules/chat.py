@@ -118,7 +118,7 @@ async def get_chatinfo(event):
     return chat_info
 
 
-async def fetch_info(chat, event):
+async def fetch_info(chat, event):  # sourcery no-metrics
     # chat.chats is a list so we use get_entity() to avoid IndexError
     chat_obj_info = await event.client.get_entity(chat.full_chat.id)
     broadcast = (
@@ -317,7 +317,6 @@ async def fetch_info(chat, event):
             caption += f", <code>{slowmode_time}s</code>\n\n"
         else:
             caption += "\n\n"
-    if not broadcast:
         caption += f"Supergroup: {supergroup}\n\n"
     if hasattr(chat_obj_info, "restricted"):
         caption += f"Restricted: {restricted}\n"

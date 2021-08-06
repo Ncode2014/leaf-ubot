@@ -54,7 +54,7 @@ def register(**args):
         if not ignore_unsafe:
             args["pattern"] = pattern.replace("^.", unsafe_pattern, 1)
 
-    def decorator(func):
+    def decorator(func):  # sourcery no-metrics
         async def wrapper(check):
             if check.edit_date and check.is_channel and not check.is_group:
                 # Messages sent in channels can be edited by other users.
