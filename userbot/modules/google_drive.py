@@ -824,7 +824,7 @@ async def lists(gdrive):  # sourcery no-metrics
 
 
 @register(pattern=r"^\.gdf (mkdir|rm|chck) (.*)", outgoing=True)
-async def google_drive_managers(gdrive):    # sourcery no-metrics
+async def google_drive_managers(gdrive):  # sourcery no-metrics
     """- Google Drive folder/file management -"""
     await gdrive.edit("`Sending information...`")
     service = await create_app(gdrive)

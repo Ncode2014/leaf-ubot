@@ -38,7 +38,7 @@ async def getmusic(cat):
     for i in user_data:
         video_link = i.get_attribute("href")
         break
-    command = f"yt-dlp -x --add-metadata --extractor-args 'player_client:android' --embed-thumbnail --audio-format mp3 {video_link}" # adding extractor-args to bypass throttling
+    command = f"yt-dlp -x --add-metadata --extractor-args 'player_client:android' --embed-thumbnail --audio-format mp3 {video_link}"  # adding extractor-args to bypass throttling
     os.system(command)
     return video_link
 
@@ -52,7 +52,10 @@ async def getmusicvideo(cat):
     for i in user_data:
         video_link = i.get_attribute("href")
         break
-    command = 'yt-dlp -f "[filesize<50M]" --extractor-args "player_client:ios" --merge-output-format mp4 ' + video_link # adding extractor-args to bypass throttling 
+    command = (
+        'yt-dlp -f "[filesize<50M]" --extractor-args "player_client:ios" --merge-output-format mp4 '
+        + video_link
+    )  # adding extractor-args to bypass throttling
     os.system(command)
 
 

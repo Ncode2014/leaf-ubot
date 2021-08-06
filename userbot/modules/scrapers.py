@@ -553,6 +553,7 @@ async def yt_search(event):
 
     await event.edit(output, link_preview=False)
 
+
 @register(outgoing=True, pattern=r"^\.reddit (.*)")
 async def reddit(event):
     sub = event.pattern_match.group(1)
@@ -596,6 +597,7 @@ async def reddit(event):
             print(e)
             await event.edit(message + "\n\n`" + data["selftext"] + "`")
 
+
 @register(outgoing=True, pattern=r".rip(audio|video( \d{0,4})?) (.*)")
 async def download_video(v_url):
     """For .rip command, download media from YouTube and many other sites."""
@@ -634,7 +636,6 @@ async def download_video(v_url):
             "proxy": "",
             "extractor-args": "youtube:player_client=_music",
             "external_downloader": "aria2c",
-
         }
         audio = True
 
