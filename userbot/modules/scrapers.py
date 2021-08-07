@@ -357,24 +357,18 @@ async def imdb(e):
         else:
             mov_details = ""
         mov_credits = soup.findAll("div", "credit_summary_item")
+        director = mov_credits[0].a.text
         if len(mov_credits) == 1:
-            director = mov_credits[0].a.text
             writer = "Not available"
             stars = "Not available"
         elif len(mov_credits) > 2:
-            director = mov_credits[0].a.text
             writer = mov_credits[1].a.text
-            actors = []
-            for x in mov_credits[2].findAll("a"):
-                actors.append(x.text)
+            actors = [x.text for x in mov_credits[2].findAll("a")]
             actors.pop()
             stars = actors[0] + "," + actors[1] + "," + actors[2]
         else:
-            director = mov_credits[0].a.text
             writer = "Not available"
-            actors = []
-            for x in mov_credits[1].findAll("a"):
-                actors.append(x.text)
+            actors = [x.text for x in mov_credits[1].findAll("a")]
             actors.pop()
             stars = actors[0] + "," + actors[1] + "," + actors[2]
         if soup.find("div", "inline canwrap"):
@@ -454,9 +448,10 @@ async def translateme(trans):
     except ValueError:
         return await trans.edit("Invalid destination language.")
 
-    source_lan = LANGUAGES[f"{reply_text.src.lower()}"]
-    transl_lan = LANGUAGES[f"{reply_text.dest.lower()}"]
-    reply_text = f"From **{source_lan.title()}**\nTo **{transl_lan.title()}:**\n\n{reply_text.text}"
+    source_lang = LANGUAGES.get(reply_text.src).title()  # type: ignore
+    target_lang = LANGUAGES.get(target_lang).title()
+
+    reply_text = f"From: **{source_lang}**\nTo: **{target_lang}**\n\n{reply_text.text}"  # type: ignore
 
     await trans.edit(reply_text)
     if BOTLOG:
