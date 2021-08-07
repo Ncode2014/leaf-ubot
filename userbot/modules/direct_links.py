@@ -339,6 +339,22 @@ async def androidfilehost(url: str) -> str:
     return reply
 
 
+async def solid(url: str) -> str:
+    """ Solidfiles direct links generator
+    Based on https://github.com/Xonshiz/SolidFiles-Downloader
+    By https://github.com/Jusidama18 """
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36'
+    }
+    pageSource = requests.get(url, headers=headers).text
+    mainOptions = str(
+        re.search(
+            r'viewerOptions\'\,\ (.*?)\)\;',
+            pageSource).group(1))
+    reply = json.loads(mainOptions)["downloadUrl"]
+    return reply
+
+
 async def uptobox(request, url: str) -> str:
     """Uptobox direct links generator"""
     try:
