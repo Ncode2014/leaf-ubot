@@ -22,7 +22,7 @@ from bs4 import BeautifulSoup
 from humanize import naturalsize
 from js2py import EvalJs
 import lk21
-import cfscrape
+import cloudscraper
 from userbot import CMD_HELP, USR_TOKEN
 from userbot.events import register
 from userbot.utils import time_formatter
@@ -521,7 +521,7 @@ async def racaty(url: str) -> str:
         link = re.findall(r'\bhttps?://.*racaty\.net\S+', url)[0]
     except IndexError:
         raise DirectDownloadLinkException("No Racaty links found\n")
-    scraper = cfscrape.create_scraper()
+    scraper = cloudscraper.create_scraper()
     r = scraper.get(url)
     soup = BeautifulSoup(r.text, "lxml")
     op = soup.find("input", {"name": "op"})["value"]
@@ -630,6 +630,6 @@ CMD_HELP.update(
         "generate a direct download link\n\n"
         "List of supported URLs:\n"
         "`Google Drive - Cloud Mail - Yandex.Disk - AFH - "
-        "ZippyShare - MediaFire - SourceForge - OSDN - GitHub`"
+        "ZippyShare - MediaFire - SourceForge - OSDN - GitHub & many others`"
     }
 )
