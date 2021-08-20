@@ -126,7 +126,7 @@ async def vb(event):
         except YouBlockedUserError:
             return await event.reply("Unblock @Carol5_bot or chat them")
         if get.text.startswith("Wait for result..."):
-            return await event.edit(f"Your VBV Invalid!")
+            return await event.edit('Your VBV Invalid!')
         await event.edit(get.message)
         await event.client.delete_messages(conv.chat_id, [send.id, get.id])
 

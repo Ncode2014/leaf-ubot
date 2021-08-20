@@ -583,7 +583,7 @@ async def reddit(event):
         message = f"**{data['title']}**\n⬆️{data['score']}\n\nBy: __u/{data['author']}__\n\n[Link](https://reddit.com{data['permalink']})"
         try:
             image = data["url"]
-            with open(f"reddit.jpg", "wb") as load:
+            with open('reddit.jpg', "wb") as load:
                 load.write(get(image).content)
 
             await event.client.send_file(event.chat_id, "reddit.jpg", caption=message)
