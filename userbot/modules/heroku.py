@@ -157,6 +157,7 @@ async def dyno_usage(dyno):
             minutes_remaining = remaining_quota / 60
             hours = math.floor(minutes_remaining / 60)
             minutes = math.floor(minutes_remaining % 60)
+            day = math.floor(hours / 24)
 
             """ - User App Used Quota - """
             Apps = result["apps"]
@@ -180,7 +181,8 @@ async def dyno_usage(dyno):
                 "\n\n"
                 "-> `Dyno hours quota remaining this month`:\n"
                 f"     •  **{hours} hour(s), {minutes} minute(s)  "
-                f"-  {percentage}%**"
+                f"-  {percentage}%**\n\n"
+                f" `Estimated Heroku Expired`:  **{day}** day(s)"
             )
             return True
 
