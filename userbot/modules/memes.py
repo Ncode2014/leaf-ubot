@@ -1085,6 +1085,7 @@ async def scam(event):
         "photo",
         "document",
         "cancel",
+        "sticker",
     ]
     input_str = event.pattern_match.group(1)
     args = input_str.split()
@@ -1203,7 +1204,7 @@ CMD_HELP.update(
         "\n\n>`.decide [Alternates: (.yes, .no, .maybe)]`"
         "\nUsage: Make a quick decision."
         "\n\n>`.scam <action> <time>`"
-        "\n[Available Actions: (typing, contact, game, location, voice, round, video, photo, document, cancel)]"
+        "\n[Available Actions: (typing, contact, game, location, voice, round, video, photo, document, sticker, cancel)]"
         "\nUsage: Create fake chat actions, for fun. (Default action: typing)"
         "\n\n\nThanks to 🅱️ottom🅱️ext🅱️ot (@NotAMemeBot) for some of these."
     }
