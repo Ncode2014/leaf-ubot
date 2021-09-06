@@ -330,23 +330,24 @@ async def text_to_speech(query):
             )
         await query.delete()
 
+
 # kanged from https://github.com/meareyou/lel_remake_UserBoto/blob/x-sql-extended/userbot/modules/neonime.py
 @register(outgoing=True, pattern=r"^\.neonime ?(.*)")
 async def neonime(event):
-    await event.edit('tunggu bentar...')
-    url = 'https://neonime.live/episode/'
+    await event.edit("tunggu bentar...")
+    url = "https://neonime.live/episode/"
     ht_ = get(url).text
     _bs = BeautifulSoup(ht_, "html.parser")
-    bd_ = _bs.findAll('td', class_='bb')
+    bd_ = _bs.findAll("td", class_="bb")
     out = "<b>New Episode:</b>\n\n"
     for kntl_ in bd_:
-        _lucu = kntl_.find('a')
+        _lucu = kntl_.find("a")
         if not _lucu:
-            _lucu = 'none'
+            _lucu = "none"
         else:  # FKTnK3aKtFvMSUiWLZrTuAp4g93VSjbXcR5zGmqWAijuAuYgR2ACP8WNot2ZyTRVECks1uV5WWW7muWz5SZkY2P8YbWW6AYLUFTsmFU1oW9Y2GP4
             tt_ = _lucu.get_text()
-            _tt = re.sub(r'\s+Subtitle\s+Indonesia\s+Season.\d+', '', tt_)
-            link = _lucu['href']
+            _tt = re.sub(r"\s+Subtitle\s+Indonesia\s+Season.\d+", "", tt_)
+            link = _lucu["href"]
             out += f"• <a href='{link}'>{_tt}</a>\n"
             if len(out) > 1000:
                 break
@@ -360,15 +361,13 @@ def get_html(url):
     if len(box) != 0:
         for clear in box:
             if (
-                clear.get_text() == 'MP4'
-                or clear.get_text() != 'MP4'
-                and clear.get_text() == 'MKV'
+                clear.get_text() == "MP4"
+                or clear.get_text() != "MP4"
+                and clear.get_text() == "MKV"
             ):
                 box.remove(clear)
     tag_li = [box_ for box_ in box]
-    return {
-        "html": tag_li
-    }
+    return {"html": tag_li}
 
 
 def link_download(query, url):
@@ -379,18 +378,16 @@ def link_download(query, url):
     ]
 
     tag_label = [o.get_text() for p, o in enumerate(r[query].find_all("label"))]
-    return {
-        "label": tag_label,
-        "url": tag_href
-    }
+    return {"label": tag_label, "url": tag_href}
+
 
 @register(outgoing=True, pattern=r"^\.neolink ?(.*)")
 async def _(event):
     url = event.pattern_match.group(1)
     if not url:
         await event.edit("Masukan url episode, liat .help neonime")
-    elif 'https://' not in url:
-        await event.edit('Masukan url')
+    elif "https://" not in url:
+        await event.edit("Masukan url")
         return
     else:
         await event.edit("Tunggu bentar..")
