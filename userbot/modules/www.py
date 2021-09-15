@@ -38,8 +38,8 @@ async def speedtst(spd):
         f"**Country :** `{result['server']['country']}`\n"
         f"**Sponsor :** `{result['server']['sponsor']}`\n\n"
         f"**Ping :** `{result['ping']}`\n"
-        f"**Upload :** `{humanbytes(result['upload'])}/s`\n"
-        f"**Download :** `{humanbytes(result['download'])}/s`"
+        f"**Upload :** `{humanbytes(result['upload'] / 8)}/s`\n"
+        f"**Download :** `{humanbytes(result['download'] / 8)}/s`"
     )
 
     await spd.delete()
