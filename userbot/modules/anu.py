@@ -1,10 +1,5 @@
-# Copyright (C) 2019 The Raphielscape Company LLC.
-#
-# Licensed under the Raphielscape Public License, Version 1.c (the "License");
-# you may not use this file except in compliance with the License.
-#
-
 import asyncio
+from asyncio.exceptions import TimeoutError
 
 from faker import Faker
 from geopy.geocoders import Nominatim
@@ -61,7 +56,7 @@ async def fakemail(event):
         return
     reply_message = await event.get_reply_message()
     if not reply_message.text:
-        await fake.edit("```reply to text message```")
+        await event.edit("```reply to text message```")
         return
     chat = "@fakemailbot"
     reply_message.sender
@@ -126,7 +121,7 @@ async def vb(event):
         except YouBlockedUserError:
             return await event.reply("Unblock @Carol5_bot or chat them")
         if get.text.startswith("Wait for result..."):
-            return await event.edit(f"Your VBV Invalid!")
+            return await event.edit("Your VBV Invalid!")
         await event.edit(get.message)
         await event.client.delete_messages(conv.chat_id, [send.id, get.id])
 
@@ -177,6 +172,54 @@ async def _(event):
         await event.client.delete_messages(conv.chat_id, [send.id, get.id])
 
 
+# kang from https://github.com/mrismanaziz/Man-Userbot/commit/2a458e205e2b754206b982c0288a41e11665b944
+@register(outgoing=True, pattern=r"^\.pdf(?: |$)(.*)")
+async def _(event):
+    if not event.reply_to_msg_id:
+        return await event.edit("**please reply to any message**")
+    reply_message = await event.get_reply_message()
+    chat = "@office2pdf_bot"
+    await event.edit("`change to pdf`")
+    try:
+        async with bot.conversation(chat) as conv:
+            try:
+                msg_start = await conv.send_message("/start")
+                response = await conv.get_response()
+                wait = await conv.send_message(reply_message)
+                convert = await conv.send_message("/ready2conv")
+                confirm = await conv.get_response()
+                editfilename = await conv.send_message("Yes")
+                enterfilename = await conv.get_response()
+                filename = await conv.send_message("idk")
+                started = await conv.get_response()
+                pdf = await conv.get_response()
+                await bot.send_read_acknowledge(conv.chat_id)
+            except YouBlockedUserError:
+                await event.edit("**Unblock @office2pdf_bot and try again**")
+                return
+            await event.client.send_message(event.chat_id, pdf)
+            await event.client.delete_messages(
+                conv.chat_id,
+                [
+                    msg_start.id,
+                    response.id,
+                    wait.id,
+                    started.id,
+                    filename.id,
+                    editfilename.id,
+                    enterfilename.id,
+                    confirm.id,
+                    pdf.id,
+                    convert.id,
+                ],
+            )
+            await event.delete()
+    except TimeoutError:
+        return await event.edit(
+            "**ERROR: @office2pdf_bot not response, please try again**"
+        )
+
+
 @register(outgoing=True, pattern="^.gps(?: |$)(.*)")
 async def gps(event):
     if event.fwd_from:
@@ -225,5 +268,7 @@ CMD_HELP.update(
         "\nUsage: to get fake email."
         "\n\n> `.gps`"
         "\nUsage: To Get Map Location"
+        "\n\n> `.pdf` **<reply text>**"
+        "\nUsage: To Convert text to PDF file"
     }
 )
