@@ -87,8 +87,8 @@ async def run_cmd(cmd: list) -> (bytes, bytes):
 
 def post_to_telegraph(title, html_format_content):
     post_client = TelegraphPoster(use_api=True)
-    auth_name = "WeebProject"
-    auth_url = "https://github.com/BianSepang/WeebProject"
+    auth_name = "leaf-ubot"
+    auth_url = "https://github.com/Ncode2014/leaf-ubot"
     post_client.create_api_token(auth_name)
     post_page = post_client.post(
         title=title,

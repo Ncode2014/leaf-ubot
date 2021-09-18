@@ -1,11 +1,8 @@
-# WeebProject Userbot
+# leaf-ubot
 
 <p align="center">
-    <a href="https://app.codacy.com/gh/BianSepang/WeebProject/dashboard"> <img src="https://img.shields.io/codacy/grade/a723cb464d5a4d25be3152b5d71de82d?color=blue&logo=codacy&style=flat-square" alt="Codacy" /></a><br>
-    <a href="https://github.com/BianSepang/WeebProject/stargazers"> <img src="https://img.shields.io/github/stars/BianSepang/WeebProject?logo=github&style=flat-square" alt="Stars" /></a>
-    <a href="https://github.com/BianSepang/WeebProject/network/members"> <img src="https://img.shields.io/github/forks/BianSepang/WeebProject?logo=github&style=flat-square" alt="Forks" /></a>
-    <a href="https://github.com/BianSepang/WeebProject/watchers"> <img src="https://img.shields.io/github/watchers/BianSepang/WeebProject?logo=github&style=flat-square" alt="Watch" /></a><br>
-    <a href="https://github.com/BianSepang/WeebProject/graphs/contributors"> <img src="https://img.shields.io/github/contributors/BianSepang/WeebProject?color=blue&style=flat-square" alt="Contributors" /></a>
+    <a href="https://github.com/Ncode2014/leaf-ubot/watchers"> <img src="https://img.shields.io/github/watchers/Ncode2014/leaf-ubot?logo=github&style=flat-square" alt="Watch" /></a><br>
+    <a href="https://github.com/Ncode2014/leaf-ubot/graphs/contributors"> <img src="https://img.shields.io/github/contributors/Ncode2014/leaf-ubot?color=blue&style=flat-square" alt="Contributors" /></a>
     <a href="https://pypi.org/project/Telethon/"> <img src="https://img.shields.io/pypi/v/telethon?label=telethon&logo=pypi&logoColor=white&style=flat-square" /></a>
 </p>
 
@@ -28,11 +25,12 @@
 A modular Telegram Userbot running on Python3 with sqlalchemy database.
 
 based on [ProjectBish](https://github.com/adekmaulana/ProjectBish) Userbot
+and forked from [Weebproject](https://github.com/BianSepang/WeebProject) Userbot
 
 ## Deploy
 ### Heroku
 Click this button below to Deploy to Heroku
-<p align="center"><a href="https://heroku.com/deploy?template=https://github.com/BianSepang/WeebProject/tree/master"> <img src="https://www.herokucdn.com/deploy/button.png" alt="Deploy to Heroku"/></a></p>
+<p align="center"><a href="https://heroku.com/deploy?template=https://github.com/Ncode2014/leaf-ubot/tree/master"> <img src="https://www.herokucdn.com/deploy/button.png" alt="Deploy to Heroku"/></a></p>
 
 ### "Bare hands", using Git and Python3 -- on (Linux, macOS, and Android [via Termux])
 1. Clone this repository on your local machine and `cd` (or `chdir`, anti bloat guy) to it
@@ -49,7 +47,7 @@ Click this button below to Deploy to Heroku
 ### Docker
 1. Clone this repository on your local machine and `cd` (or `chdir`, anti bloat guy) to it
 2. Edit `sample_config.env` and save it as `config.env`
-  - Set `DATABASE_URL` to `postgresql://USERNAME:PASSWORD@db:5432/weebproject`
+  - Set `DATABASE_URL` to `postgresql://USERNAME:PASSWORD@db:5432/leaf-ubot`
   - You should set `USERNAME` and `PASSWORD` too in `docker-compose.yml`
   - Do not forget to fill in the `REQUIRED %%` values, or else the bot will not run
 3. Run docker: `docker-compose up`
