@@ -654,7 +654,7 @@ async def reddit(event):
         message = f"**{data['title']}**\n⬆️{data['score']}\n\nBy: __u/{data['author']}__\n\n[Link](https://reddit.com{data['permalink']})"
         try:
             image = data["url"]
-            with open(f"reddit.jpg", "wb") as load:
+            with open("reddit.jpg", "wb") as load:
                 load.write(get(image).content)
 
             await event.client.send_file(event.chat_id, "reddit.jpg", caption=message)
@@ -726,7 +726,6 @@ async def download_video(v_url):
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75",
             "proxy": "",
             "extractor-args": "youtube:player_client=all",
-            "external_downloader": "aria2c",
         }
         video = True
 
@@ -804,7 +803,7 @@ async def download_video(v_url):
         )
         f_path = glob(os.path.join(TEMP_DOWNLOAD_DIRECTORY, str(s_time), "*"))[0]
         # Noob way to convert from .mkv to .mp4
-        if f_path.endswith(".mkv"):
+        if f_path.endswith(".mkv") or f_path.endswith(".webm"):
             base = os.path.splitext(f_path)[0]
             os.rename(f_path, base + ".mp4")
             f_path = glob(os.path.join(TEMP_DOWNLOAD_DIRECTORY, str(s_time), "*"))[0]
