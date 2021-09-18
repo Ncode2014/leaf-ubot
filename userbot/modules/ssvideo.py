@@ -89,7 +89,6 @@ CMD_HELP.update(
         "ssvideo": ">`.ssvideo` <grid>"
         "\nUsage: Capture video frames by <grid> x <grid>."
         "\n*max grid is 10.",
-        "ssu": ">`.ssu` <link url>"
-        "\nUsage: generate a thumbnail from direct link"
+        "ssu": ">`.ssu` <link url>" "\nUsage: generate a thumbnail from direct link",
     }
 )

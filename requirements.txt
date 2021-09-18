@@ -9,9 +9,8 @@ covid
 cowpy
 eksipy
 emoji
-geopy
 faker
-https://github.com/Ncode2014/cloudscraper/archive/refs/heads/master.zip
+geopy
 git+https://github.com/httplib2/httplib2
 git+https://github.com/jmoiron/humanize
 git+https://github.com/Joeclinton1/google-images-download
@@ -24,7 +23,6 @@ git+https://github.com/pawamoy/aria2p
 git+https://github.com/rthalley/dnspython
 git+https://github.com/TomyPrs/deezloader
 git+https://github.com/vstinner/hachoir
-https://raw.githubusercontent.com/Ncode2014/nekadok/req/heroku-dlp-master.zip
 gitpython
 glitch_this
 google-api-python-client
@@ -34,12 +32,14 @@ googletrans==4.0.0rc1
 gTTS
 gTTS-token
 heroku3
-html_telegraph_poster
 html5lib
+html_telegraph_poster
+https://github.com/Ncode2014/cloudscraper/archive/refs/heads/master.zip
+https://raw.githubusercontent.com/Ncode2014/nekadok/req/heroku-dlp-master.zip
 jikanpy
 js2py
-lottie
 lk21
+lottie
 lxml
 lyricsgenius
 natsort
@@ -49,8 +49,8 @@ pendulum
 Pillow
 Pillow
 psycopg2
-py7zr
 psycopg2-binary
+py7zr
 pybase64
 pydub
 pylast
@@ -71,5 +71,5 @@ urbandict
 validators
 vcsi
 wikipedia
-youtube_dl
 wordcloud
+youtube_dl
