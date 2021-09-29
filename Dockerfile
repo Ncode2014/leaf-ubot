@@ -1,5 +1,5 @@
-# Using Python Slim-Buster
-FROM narima/nekadok:buster
+# Using Python Slim-Bullsye
+FROM narima/nekadok:bullseye
 
 # Clone repo and prepare working directory
 RUN git clone -b master https://github.com/Ncode2014/leaf-ubot /home/leaf-ubot/ \
