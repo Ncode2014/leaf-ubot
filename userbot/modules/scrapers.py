@@ -511,35 +511,43 @@ async def imdb(e):
 @register(outgoing=True, pattern=r"^\.trt(?: |$)([\s\S]*)")
 async def translateme(trans):
     """For .trt command, translate the given text using Google Translate."""
-    translator = Translator()
-    textx = await trans.get_reply_message()
-    message = trans.pattern_match.group(1)
-    if message:
-        pass
-    elif textx:
-        message = textx.text
+
+    if trans.is_reply and not trans.pattern_match.group(1):
+        message = await trans.get_reply_message()
+        message = str(message.message)
     else:
-        return await trans.edit("`Give a text or reply to a message to translate!`")
+        message = str(trans.pattern_match.group(1))
+
+    if not message:
+        return await trans.edit(
+            "**Give some text or reply to a message to translate!**"
+        )
+
+    await trans.edit("**Processing...**")
+    translator = Translator()
 
     try:
         from userbot.modules.sql_helper.globals import gvarstatus
     except AttributeError:
-        return await trans.edit("`Running on Non-SQL mode!`")
+        return await trans.edit("**Running on Non-SQL mode!**")
 
     if gvarstatus("trt_lang") is not None:
         target_lang = str(gvarstatus("trt_lang"))
     else:
-        target_lang = "en"
+        target_lang = "id"
 
     try:
         reply_text = translator.translate(deEmojify(message), dest=target_lang)
     except ValueError:
-        return await trans.edit("Invalid destination language.")
+        return await trans.edit(
+            "**Invalid language selected, use **`.lang trt <language code>`**.**"
+        )
 
     source_lang = LANGUAGES.get(reply_text.src).title()  # type: ignore
     target_lang = LANGUAGES.get(target_lang).title()
 
-    reply_text = f"From: **{source_lang}**\nTo: **{target_lang}**\n\n{reply_text.text}"  # type: ignore
+    # type: ignore
+    reply_text = f"From: **{source_lang}**\nTo: **{target_lang}**\n\n{reply_text.text}"
 
     await trans.edit(reply_text)
     if BOTLOG:
