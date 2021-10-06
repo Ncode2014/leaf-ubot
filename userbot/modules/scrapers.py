@@ -741,6 +741,7 @@ async def download_video(v_url):
             "addmetadata": True,
             "key": "FFmpegMetadata",
             "prefer_ffmpeg": True,
+            "allow_unplayable_formats": True,
             "geo_bypass": True,
             "nocheckcertificate": True,
             "outtmpl": os.path.join(
