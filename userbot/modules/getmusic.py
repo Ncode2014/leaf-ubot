@@ -19,6 +19,8 @@ from telethon.tl.types import DocumentAttributeAudio, DocumentAttributeVideo
 from userbot import (
     CMD_HELP,
     DEEZER_ARL_TOKEN,
+    DEEZER_EMAIL,
+    DEEZER_PASSWORD,
     LASTFM_USERNAME,
     TEMP_DOWNLOAD_DIRECTORY,
     bot,
@@ -307,12 +309,18 @@ async def _(event):  # sourcery no-metrics
 
     ARL_TOKEN = DEEZER_ARL_TOKEN
 
-    if ARL_TOKEN is None:
+    if not any([ARL_TOKEN, DEEZER_EMAIL, DEEZER_PASSWORD]):
         await event.edit(strings["invalid_arl_token"])
         return
 
     try:
-        loader = deezloader.Login(ARL_TOKEN)
+        if DEEZER_EMAIL and DEEZER_PASSWORD:
+            loader = deezloader.Login(
+                email=DEEZER_EMAIL,
+                password=DEEZER_PASSWORD,
+            )
+        else:
+            loader = deezloader.Login(arl=ARL_TOKEN)
     except Exception as er:
         await event.edit(str(er))
         return
@@ -323,7 +331,7 @@ async def _(event):  # sourcery no-metrics
 
     required_link = event.pattern_match.group(1)
     required_qty = event.pattern_match.group(2)
-    required_qty = required_qty.strip() if required_qty else "MP3_320"
+    required_qty = required_qty.strip() if required_qty else "MP3_128"
 
     await event.edit(strings["processing"])
 
@@ -331,8 +339,8 @@ async def _(event):  # sourcery no-metrics
         if "track" in required_link:
             required_track = loader.download_trackspo(
                 required_link,
-                output=temp_dl_path,
-                quality=required_qty,
+                output_dir=temp_dl_path,
+                quality_download=required_qty,
                 recursive_quality=True,
                 recursive_download=True,
                 not_interface=True,
@@ -345,12 +353,12 @@ async def _(event):  # sourcery no-metrics
         elif "album" in required_link:
             reqd_albums = loader.download_albumspo(
                 required_link,
-                output=temp_dl_path,
-                quality=required_qty,
+                output_dir=temp_dl_path,
+                quality_download=required_qty,
                 recursive_quality=True,
                 recursive_download=True,
                 not_interface=True,
-                zips=False,
+                make_zip=False,
             )
             await event.edit(strings["uploading"])
             for required_track in reqd_albums:
@@ -362,8 +370,8 @@ async def _(event):  # sourcery no-metrics
         if "track" in required_link:
             required_track = loader.download_trackdee(
                 required_link,
-                output=temp_dl_path,
-                quality=required_qty,
+                output_dir=temp_dl_path,
+                quality_download=required_qty,
                 recursive_quality=True,
                 recursive_download=True,
                 not_interface=True,
@@ -376,12 +384,12 @@ async def _(event):  # sourcery no-metrics
         elif "album" in required_link:
             reqd_albums = loader.download_albumdee(
                 required_link,
-                output=temp_dl_path,
-                quality=required_qty,
+                output_dir=temp_dl_path,
+                quality_download=required_qty,
                 recursive_quality=True,
                 recursive_download=True,
                 not_interface=True,
-                zips=False,
+                make_zip=False,
             )
             await event.edit(strings["uploading"])
             for required_track in reqd_albums:
@@ -397,8 +405,8 @@ async def _(event):  # sourcery no-metrics
             required_track = loader.download_name(
                 artist=artist,
                 song=song,
-                output=temp_dl_path,
-                quality=required_qty,
+                output_dir=temp_dl_path,
+                quality_download=required_qty,
                 recursive_quality=True,
                 recursive_download=True,
                 not_interface=True,
@@ -406,6 +414,7 @@ async def _(event):  # sourcery no-metrics
         except BaseException as err:
             await event.edit(f"**ERROR :** {err}")
             await asyncio.sleep(5)
+            await event.delete()
             return
         await event.edit(strings["uploading"])
         await upload_track(required_track, event)
@@ -417,16 +426,9 @@ async def _(event):  # sourcery no-metrics
 
 
 async def upload_track(track_location, message):
-    metadata = extractMetadata(createParser(track_location))
-    duration = 0
-    title = ""
-    performer = ""
-    if metadata.has("duration"):
-        duration = metadata.get("duration").seconds
-    if metadata.has("title"):
-        title = metadata.get("title")
-    if metadata.has("artist"):
-        performer = metadata.get("artist")
+    duration = track_location.duration
+    title = track_location.music
+    performer = track_location.artist
     document_attributes = [
         DocumentAttributeAudio(
             duration=duration,
@@ -436,15 +438,14 @@ async def upload_track(track_location, message):
             waveform=None,
         )
     ]
-    supports_streaming = True
-    force_document = False
-    caption_rts = os.path.basename(track_location)
     c_time = time.time()
-    with open(track_location, "rb") as f:
+    track_path = track_location.song_path
+    track_name = os.path.basename(track_path)
+    with open(track_path, "rb") as f:
         result = await upload_file(
             client=message.client,
             file=f,
-            name=track_location,
+            name=track_name,
             progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
                 progress(d, t, message, c_time, "[UPLOAD]", track_location)
             ),
@@ -452,13 +453,13 @@ async def upload_track(track_location, message):
     await message.client.send_file(
         message.chat_id,
         result,
-        caption=caption_rts,
-        force_document=force_document,
-        supports_streaming=supports_streaming,
+        caption=track_name,
+        force_document=False,
+        supports_streaming=True,
         allow_cache=False,
         attributes=document_attributes,
     )
-    os.remove(track_location)
+    os.remove(track_path)
 
 
 CMD_HELP.update(

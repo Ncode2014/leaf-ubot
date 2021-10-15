@@ -9,6 +9,7 @@ covid
 cowpy
 deezloader
 eksipy
+dnspython
 emoji
 faker
 geopy
