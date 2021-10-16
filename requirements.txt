@@ -8,8 +8,8 @@ cffi
 covid
 cowpy
 deezloader
-eksipy
 dnspython
+eksipy
 emoji
 faker
 geopy
