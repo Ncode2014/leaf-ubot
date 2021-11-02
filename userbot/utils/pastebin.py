@@ -107,7 +107,7 @@ class PasteBin:
         try:
             async with self.http.post(
                 self.KATBIN_URL,
-                data={"_csrf_token": token, "paste[content]": self.data}
+                data={"_csrf_token": token, "paste[content]": self.data},
             ) as req:
                 if req.status != 200:
                     self.retry = "dogbin"
