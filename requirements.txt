@@ -8,7 +8,6 @@ cffi
 covid
 cowpy
 deezloader
-dnspython
 eksipy
 emoji
 faker
@@ -43,11 +42,11 @@ lk21
 lottie
 lxml
 lyricsgenius
+markdown
 natsort
 numpy
 oauth2client
 pendulum
-Pillow
 Pillow
 psycopg2
 psycopg2-binary
