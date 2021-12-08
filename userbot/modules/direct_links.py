@@ -642,7 +642,7 @@ async def useragent():
             "useragents/explore/operating_system_name/android/"
         ).content,
         "lxml",
-    ).findAll("td", {"class": "useragent"})
+    ).findAll("a", {"class": "code"})
     user_agent = choice(useragents)
     return user_agent.text
 
