@@ -9,6 +9,7 @@ covid
 cowpy
 deezloader==2021.9.22
 eksipy
+duckduckgo_search
 emoji
 fake-headers
 faker
