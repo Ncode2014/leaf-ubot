@@ -14,7 +14,7 @@ import urllib.parse
 from asyncio import create_subprocess_shell as asyncSubprocess
 from asyncio.subprocess import PIPE as asyncPIPE
 from base64 import standard_b64encode
-from random import choice
+from os.path import basename
 from urllib.parse import urlparse
 
 import aiohttp
@@ -142,7 +142,7 @@ async def direct_link_generator(request):
 async def zippy_share(url: str) -> str:
     zippy = await extract_info_coro(url, download=False)
 
-    return f"[{zippy.name}]({zippy.download_url}) __({zippy.size})__"
+    return f"[{zippy.name}]({zippy.download_url}) __({humanbytes(zippy.size)})__"
 
 
 async def yandex_disk(url: str) -> str:
