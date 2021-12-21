@@ -37,7 +37,6 @@ html_telegraph_poster
 https://github.com/Ncode2014/cloudscraper/archive/refs/heads/master.zip
 https://raw.githubusercontent.com/Ncode2014/nekadok/req/heroku-dlp-master.zip
 jikanpy
-js2py
 lk21
 lottie
 lxml
@@ -72,4 +71,6 @@ validators
 vcsi
 wikipedia
 wordcloud
-youtube_dl
+youtube-search
+yt-dlp
+zippyshare-downloader
