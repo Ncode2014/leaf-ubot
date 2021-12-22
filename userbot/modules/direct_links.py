@@ -282,14 +282,13 @@ async def androidfilehost(url: str) -> str:
         return reply
     fid = re.findall(r"\?fid=(.*)", link)[0]
     session = requests.Session()
-    user_agent = await useragent()
-    headers = {"user-agent": user_agent}
+    headers = {"user-agent": "Mozilla/5.0 (Linux; Android 8.1.0; CPH1803) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.114 Mobile Safari/537.36"}
     res = session.get(link, headers=headers, allow_redirects=True)
     headers = {
         "origin": "https://androidfilehost.com",
         "accept-encoding": "gzip, deflate, br",
         "accept-language": "en-US,en;q=0.9",
-        "user-agent": user_agent,
+        "user-agent": "Mozilla/5.0 (Linux; Android 8.1.0; CPH1803) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.114 Mobile Safari/537.36",
         "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
         "x-mod-sbb-ctype": "xhr",
         "accept": "*/*",
@@ -517,7 +516,7 @@ async def racaty(url: str) -> str:
     except IndexError:
         raise DirectDownloadLinkException("No Racaty links found\n")
     scraper = cloudscraper.create_scraper()
-    r = scraper.get(url)
+    r = scraper.get(link)
     soup = BeautifulSoup(r.text, "lxml")
     op = soup.find("input", {"name": "op"})["value"]
     ids = soup.find("input", {"name": "id"})["value"]
@@ -607,22 +606,6 @@ async def fichier(link: str) -> str:
         raise DirectDownloadLinkException(
             "ERROR: Error trying to generate Direct Link from 1fichier!"
         )
-
-
-async def useragent():
-    """
-    useragent random setter
-    """
-    useragents = BeautifulSoup(
-        requests.get(
-            "https://developers.whatismybrowser.com/"
-            "useragents/explore/operating_system_name/android/"
-        ).content,
-        "lxml",
-    ).findAll("a", {"class": "code"})
-    user_agent = choice(useragents)
-    return user_agent.text
-
 
 CMD_HELP.update(
     {
