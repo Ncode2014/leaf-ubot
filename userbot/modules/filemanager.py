@@ -205,7 +205,7 @@ async def zip_file(event):  # sourcery no-metrics
                 zip_path = join(TEMP_DOWNLOAD_DIRECTORY, zip_name)
                 if not zip_name.endswith(".zip"):
                     zip_path += ".zip"
-            with ZipFile(zip_path, "w", ZIP_DEFLATED) as zip_obj:
+            with ZipFile(zip_path, "w") as zip_obj:
                 zip_obj.write(path, file_name)
             await event.edit(f"Zipped `{path}` into `{zip_path}`")
     else:
