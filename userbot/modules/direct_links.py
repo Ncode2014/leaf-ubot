@@ -128,6 +128,8 @@ async def direct_link_generator(request):
             reply += await anonfiles(link)
         elif "racaty.net" in link:
             reply += await racaty(link)
+        elif "sfile.mobi" in link:
+            reply += await sfile(link)
         elif "1fichier.com" in link:
             reply += await fichier(link)
         elif "uptobox.com" in link:
@@ -142,6 +144,19 @@ async def zippy_share(url: str) -> str:
     zippy = await extract_info_coro(url, download=False)
 
     return f"[{zippy.name}]({zippy.download_url}) __({humanbytes(zippy.size)})__"
+
+
+async def sfile(url: str) -> str:
+    reply = ""
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Linux; Android 8.1.0; CPH1909) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.92 Mobile Safari/537.36"
+    }
+    ori = BeautifulSoup(requests.get(url, headers=headers), "html.parser")
+    link_ori = ori.find("a", "w3-button w3-blue")["href"]
+    file_name = ori.find("title").get_text()
+    bypass = link_ori + "&k=4"
+    reply += f"[{file_name}]({bypass})\n"
+    return reply
 
 
 async def yandex_disk(url: str) -> str:
