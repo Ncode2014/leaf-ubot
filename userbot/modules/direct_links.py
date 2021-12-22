@@ -14,7 +14,6 @@ import urllib.parse
 from asyncio import create_subprocess_shell as asyncSubprocess
 from asyncio.subprocess import PIPE as asyncPIPE
 from base64 import standard_b64encode
-from os.path import basename
 from urllib.parse import urlparse
 
 import aiohttp
@@ -282,7 +281,9 @@ async def androidfilehost(url: str) -> str:
         return reply
     fid = re.findall(r"\?fid=(.*)", link)[0]
     session = requests.Session()
-    headers = {"user-agent": "Mozilla/5.0 (Linux; Android 8.1.0; CPH1803) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.114 Mobile Safari/537.36"}
+    headers = {
+        "user-agent": "Mozilla/5.0 (Linux; Android 8.1.0; CPH1803) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.114 Mobile Safari/537.36"
+    }
     res = session.get(link, headers=headers, allow_redirects=True)
     headers = {
         "origin": "https://androidfilehost.com",
@@ -606,6 +607,7 @@ async def fichier(link: str) -> str:
         raise DirectDownloadLinkException(
             "ERROR: Error trying to generate Direct Link from 1fichier!"
         )
+
 
 CMD_HELP.update(
     {
