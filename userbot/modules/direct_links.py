@@ -151,7 +151,7 @@ async def sfile(url: str) -> str:
     headers = {
         "User-Agent": "Mozilla/5.0 (Linux; Android 8.1.0; CPH1909) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.92 Mobile Safari/537.36"
     }
-    ori = BeautifulSoup(requests.get(url, headers=headers), "html.parser")
+    ori = BeautifulSoup(requests.get(url, headers=headers).text, "html.parser")
     link_ori = ori.find("a", "w3-button w3-blue")["href"]
     file_name = ori.find("title").get_text()
     bypass = link_ori + "&k=4"
