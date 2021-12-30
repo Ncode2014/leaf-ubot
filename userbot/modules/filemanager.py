@@ -254,10 +254,10 @@ async def unzip_file(event):
         try:
             output_path = await async_unzip(input_str)
         except BaseException as err:
-            if 'password' in str(err):
-                await event.edit('**ERROR :** `Password required.`')
+            if "password" in str(err):
+                await event.edit("**ERROR :** `Password required.`")
             else:
-                await event.edit(f'**ERROR :** `{err}`')
+                await event.edit(f"**ERROR :** `{err}`")
             return
         end_time = (datetime.now() - start_time).seconds
         await event.edit(
