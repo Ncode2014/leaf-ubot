@@ -18,6 +18,19 @@ from userbot import BOTLOG_CHATID, LOGSPAMMER, bot
 from userbot.utils.pastebin import PasteBin
 
 
+def is_chat_allowed(event_obj):
+    try:
+        from userbot.modules.sql_helper.blacklist_sql import get_blacklist
+
+        for blacklisted in get_blacklist():  # type: ignore
+            if str(event_obj.chat_id) == blacklisted.chat_id:
+                return False
+    except Exception:
+        pass
+
+    return True
+
+
 def register(**args):
     """Register a new event."""
     pattern = args.get("pattern", None)
@@ -72,14 +85,8 @@ def register(**args):
                 await check.respond("`I don't think this is a group.`")
                 return
 
-            try:
-                from userbot.modules.sql_helper.blacklist_sql import get_blacklist
-
-                for blacklisted in get_blacklist():
-                    if str(check.chat_id) == blacklisted.chat_id:
-                        return
-            except Exception:
-                pass
+            if not is_chat_allowed(check):
+                return
 
             if check.via_bot_id and not insecure and check.out:
                 return
