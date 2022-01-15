@@ -716,7 +716,6 @@ async def download_video(v_url):
             "prefer_ffmpeg": True,
             "geo_bypass": True,
             "nocheckcertificate": True,
-            "already_have_thumbnail": False,
             "postprocessors": [
                 {
                     "key": "FFmpegExtractAudio",
@@ -730,8 +729,7 @@ async def download_video(v_url):
             "quiet": True,
             "logtostderr": False,
             "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1",
-            "proxy": "",
-            "extractor-args": "youtube:player_client=_music,_agegate",
+            "extractor-args": "youtube:player_client=_music",
         }
         audio = True
 
