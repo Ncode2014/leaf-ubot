@@ -7,7 +7,6 @@
 
 from asyncio import create_subprocess_exec as asyncrunapp
 from asyncio.subprocess import PIPE as asyncPIPE
-from os import remove
 from platform import python_version, uname
 from shutil import which
 
@@ -81,54 +80,6 @@ async def bot_ver(event):
         )
 
 
-@register(outgoing=True, pattern=r"^\.pip(?: |$)(.*)")
-async def pipcheck(pip):
-    """For .pip command, do a pip search."""
-    if pip.text[0].isalpha() or pip.text[0] in ("/", "#", "@", "!"):
-        return
-    pipmodule = pip.pattern_match.group(1)
-    if pipmodule:
-        await pip.edit("`Searching . . .`")
-        pipc = await asyncrunapp(
-            "pip3",
-            "search",
-            pipmodule,
-            stdout=asyncPIPE,
-            stderr=asyncPIPE,
-        )
-
-        stdout, stderr = await pipc.communicate()
-        pipout = str(stdout.decode().strip()) + str(stderr.decode().strip())
-
-        if pipout:
-            if len(pipout) > 4096:
-                await pip.edit("`Output too large, sending as file`")
-                with open("output.txt", "w+") as file:
-                    file.write(pipout)
-                await pip.client.send_file(
-                    pip.chat_id,
-                    "output.txt",
-                    reply_to=pip.id,
-                )
-                remove("output.txt")
-                return
-            await pip.edit(
-                "**Query: **\n`"
-                f"pip3 search {pipmodule}"
-                "`\n**Result: **\n`"
-                f"{pipout}"
-                "`"
-            )
-        else:
-            await pip.edit(
-                "**Query: **\n`"
-                f"pip3 search {pipmodule}"
-                "`\n**Result: **\n`No Result Returned/False`"
-            )
-    else:
-        await pip.edit("`Use .help pip to see an example`")
-
-
 @register(outgoing=True, pattern=r"^\.(alive|on)$")
 async def amireallyalive(alive):
     """For .alive command, check if the bot is running."""
@@ -156,17 +107,13 @@ async def amireallyalive(alive):
         await alive.edit(output)
 
 
-@register(outgoing=True, pattern=r"^\.aliveu")
+@register(outgoing=True, pattern=r"^\.aliveu (.+)")
 async def amireallyaliveuser(username):
     """For .aliveu command, change the username in the .alive command."""
-    message = username.text
-    output = ".aliveu [new user without brackets] nor can it be empty"
-    if message != ".aliveu" and message[7:8] == " ":
-        newuser = message[8:]
-        global DEFAULTUSER
-        DEFAULTUSER = newuser
-        output = "Successfully changed user to " + newuser + "!"
-    await username.edit("`" f"{output}" "`")
+    newuser = username.pattern_match.group(1)
+    global DEFAULTUSER
+    DEFAULTUSER = newuser
+    await username.edit(f"Successfully changed user to `{newuser}`")
 
 
 @register(outgoing=True, pattern=r"^\.resetalive$")
@@ -181,7 +128,6 @@ CMD_HELP.update(
     {
         "sysd": ">`.sysd`" "\nUsage: Shows system information using neofetch.",
         "botver": ">`.botver`" "\nUsage: Shows the userbot version.",
-        "pip": ">`.pip <module(s)>`" "\nUsage: Does a search of pip modules(s).",
         "alive": ">`.alive`"
         "\nUsage: Type .alive to see wether your bot is working or not."
         "\n\n>`.aliveu <text>`"
