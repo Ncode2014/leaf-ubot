@@ -716,6 +716,7 @@ async def download_video(v_url):
             "prefer_ffmpeg": True,
             "geo_bypass": True,
             "nocheckcertificate": True,
+            "already_have_thumbnail": False,
             "postprocessors": [
                 {
                     "key": "FFmpegExtractAudio",
@@ -728,10 +729,9 @@ async def download_video(v_url):
             ),
             "quiet": True,
             "logtostderr": False,
-            "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+            "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1",
             "proxy": "",
-            "extractor-args": "youtube:player_client=_music",
-            "external_downloader": "aria2c",
+            "extractor-args": "youtube:player_client=_music,_agegate",
         }
         audio = True
 
@@ -753,7 +753,7 @@ async def download_video(v_url):
             ),
             "logtostderr": False,
             "quiet": True,
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
             "proxy": "",
             "extractor-args": "youtube:player_client=all",
         }
