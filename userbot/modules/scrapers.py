@@ -439,13 +439,13 @@ async def imdb(e):
             "http://www.imdb.com/" + odds[0].findNext("td").findNext("td").a["href"]
         )
         page1 = get(mov_link)
-        soup = BeautifulSoup(page1.content, "lxml")
-        if soup.find("div", "poster"):
-            poster = soup.find("div", "poster").img["src"]
+        soup1 = BeautifulSoup(page1.content, "lxml")
+        if soup1.find("div", "poster"):
+            poster = soup1.find("div", "poster").img["src"]
         else:
             poster = ""
-        if soup.find("div", "title_wrapper"):
-            pg = soup.find("div", "title_wrapper").findNext("div").text
+        if soup1.find("div", "title_wrapper"):
+            pg = soup1.find("div", "title_wrapper").findNext("div").text
             mov_details = re.sub(r"\s+", " ", pg)
         else:
             mov_details = ""
@@ -654,7 +654,7 @@ async def yt_search(event):
 async def reddit(event):
     sub = event.pattern_match.group(1)
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36 Avast/77.2.2153.120",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36",
     }
 
     if len(sub) < 1:
@@ -680,10 +680,10 @@ async def reddit(event):
     else:
         await event.edit("`Data fetching...`")
 
-        data = source["data"]["children"][0]["data"]
+        data = source["data"]["children"][1]["data"]
         message = f"**{data['title']}**\n⬆️{data['score']}\n\nBy: __u/{data['author']}__\n\n[Link](https://reddit.com{data['permalink']})"
         try:
-            image = data["url"]
+            image = data["url"][1]
             with open("reddit.jpg", "wb") as load:
                 load.write(get(image).content)
 
