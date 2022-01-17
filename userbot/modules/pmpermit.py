@@ -55,12 +55,18 @@ async def permitpm(event):
             from userbot.modules.sql_helper.pm_permit_sql import is_approved
         except AttributeError:
             return
+
+        pm_limit = gvarstatus("PM_LIMIT") or 5
         apprv = is_approved(event.chat_id)
         notifsoff = gvarstatus("NOTIF_OFF")
 
         # Use user custom unapproved message
         getmsg = gvarstatus("unapproved_msg")
-        UNAPPROVED_MSG = getmsg if getmsg is not None else DEF_UNAPPROVED_MSG
+        if getmsg is not None:
+            UNAPPROVED_MSG = getmsg
+        else:
+            UNAPPROVED_MSG = DEF_UNAPPROVED_MSG
+
         # This part basically is a sanity check
         # If the message that sent before is Unapproved Message
         # then stop sending it again to prevent FloodHit
@@ -75,9 +81,11 @@ async def permitpm(event):
                     ):
                         await message.delete()
                     await event.reply(f"`{UNAPPROVED_MSG}`")
+                LASTMSG.update({event.chat_id: event.text})
             else:
                 await event.reply(f"`{UNAPPROVED_MSG}`")
-            LASTMSG.update({event.chat_id: event.text})
+                LASTMSG.update({event.chat_id: event.text})
+
             if notifsoff:
                 await event.client.send_read_acknowledge(event.chat_id)
             if event.chat_id not in COUNT_PM:
@@ -85,7 +93,7 @@ async def permitpm(event):
             else:
                 COUNT_PM[event.chat_id] = COUNT_PM[event.chat_id] + 1
 
-            if COUNT_PM[event.chat_id] > 4:
+            if COUNT_PM[event.chat_id] == int(pm_limit):
                 await event.respond(
                     "`You were spamming my PM.`\n"
                     "`You have been blocked and reported as spam.`\n"
@@ -438,6 +446,23 @@ async def get_approve(event):
     await event.edit(msg)
 
 
+@register(outgoing=True, pattern=r"^\.pmlimit (\d+)")
+async def pm_limit_handler(event):
+    try:
+        from userbot.modules.sql_helper.globals import addgvar
+    except AttributeError:
+        return
+
+    input_str = event.pattern_match.group(1)
+    addgvar("PM_LIMIT", input_str)
+    await event.edit(f"`Set PM limit to {input_str}`")
+
+    if BOTLOG:
+        await event.client.send_message(
+            BOTLOG_CHATID, f"#PM_LIMIT\n Set to : `{input_str}`"
+        )
+
+
 CMD_HELP.update(
     {
         "pmpermit": ">`.approve`"
@@ -446,6 +471,8 @@ CMD_HELP.update(
         "\nUsage: Disapproves the mentioned/replied person to PM."
         "\n\n>`.getapprove`"
         "\nUsage: Get all approved users."
+        "\n\n>`.pmlimit <number>`"
+        "\nUsage: Set message limit for PMPermit. (Default 5)"
         "\n\n>`.block`"
         "\nUsage: Blocks the person."
         "\n\n>`.unblock`"
