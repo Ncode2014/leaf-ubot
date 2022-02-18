@@ -20,8 +20,9 @@ from telethon.tl.types import (
     MessageMediaPhoto,
 )
 
-from userbot import CMD_HELP, bot
+from userbot import CMD_HELP, TEMP_DOWNLOAD_DIRECTORY, bot
 from userbot.events import register
+from userbot.utils import run_cmd
 
 KANGING_STR = [
     "Eh... Koq bagus... aku curry ahhh :3",
@@ -52,9 +53,47 @@ async def kang(args):
     photo = None
     emojibypass = False
     is_anim = False
+    is_video = False
     emoji = None
 
-    if not message or not message.media:
+    if message and message.media:
+        if isinstance(message.media, MessageMediaPhoto):
+            await args.edit(f"`{random.choice(KANGING_STR)}`")
+            photo = io.BytesIO()
+            photo = await bot.download_media(message.photo, photo)
+        elif "image" in message.media.document.mime_type.split("/"):
+            await args.edit(f"`{random.choice(KANGING_STR)}`")
+            photo = io.BytesIO()
+            await bot.download_file(message.media.document, photo)
+            if (
+                DocumentAttributeFilename(file_name="sticker.webp")
+                in message.media.document.attributes
+            ):
+                emoji = message.media.document.attributes[1].alt
+                if emoji != "":
+                    emojibypass = True
+        elif "tgsticker" in message.media.document.mime_type:
+            await args.edit(f"`{random.choice(KANGING_STR)}`")
+            await bot.download_file(message.media.document, "AnimatedSticker.tgs")
+
+            attributes = message.media.document.attributes
+            for attribute in attributes:
+                if isinstance(attribute, DocumentAttributeSticker):
+                    emoji = attribute.alt
+
+            emojibypass = True
+            is_anim = True
+            photo = 1
+        elif "video" in message.media.document.mime_type:
+            await args.edit("`Converting...`")
+            vid_sticker = await convert_webm(message)
+            await args.edit(f"`{random.choice(KANGING_STR)}`")
+
+            is_video = True
+            photo = 1
+        else:
+            return await args.edit("`Unsupported File!`")
+    else:
         return await args.edit("`I can't kang that...`")
 
     if isinstance(message.media, MessageMediaPhoto):
@@ -109,14 +148,18 @@ async def kang(args):
         cmd = "/newpack"
         file = io.BytesIO()
 
-        if not is_anim:
-            image = await resize_photo(photo)
-            file.name = "sticker.png"
-            image.save(file, "PNG")
-        else:
+        if is_video:
+            packname += "_vid"
+            packnick += " (Video)"
+            cmd = "/newvideo"
+        elif is_anim:
             packname += "_anim"
             packnick += " (Animated)"
             cmd = "/newanimated"
+        else:
+            image = await resize_photo(photo)
+            file.name = "sticker.png"
+            image.save(file, "PNG")
 
         response = urllib.request.urlopen(
             urllib.request.Request(f"http://t.me/addstickers/{packname}")
@@ -157,6 +200,9 @@ async def kang(args):
                         if is_anim:
                             await conv.send_file("AnimatedSticker.tgs")
                             remove("AnimatedSticker.tgs")
+                        elif is_video:
+                            await conv.send_file(vid_input)
+                            remove(vid_input)
                         else:
                             file.seek(0)
                             await conv.send_file(file, force_document=True)
@@ -191,6 +237,9 @@ async def kang(args):
                 if is_anim:
                     await conv.send_file("AnimatedSticker.tgs")
                     remove("AnimatedSticker.tgs")
+                elif is_video:
+                    await conv.send_file(vid_sticker)
+                    remove(vid_sticker)
                 else:
                     file.seek(0)
                     await conv.send_file(file, force_document=True)
@@ -221,6 +270,9 @@ async def kang(args):
                 if is_anim:
                     await conv.send_file("AnimatedSticker.tgs")
                     remove("AnimatedSticker.tgs")
+                elif is_video:
+                    await conv.send_file(vid_sticker)
+                    remove(vid_sticker)
                 else:
                     file.seek(0)
                     await conv.send_file(file, force_document=True)
@@ -353,6 +405,31 @@ async def sticker_to_png(sticker):
         else:
             await sticker.delete()
     return
+
+
+async def convert_webm(message, output="sticker.webm"):
+    w = message.file.width
+    h = message.file.height
+    w, h = (-1, 512) if h > w else (512, -1)
+    output = output if output.endswith(".webm") else f"{output}.webm"
+    vid_input = await message.client.download_media(message, TEMP_DOWNLOAD_DIRECTORY)
+    await run_cmd(
+        [
+            "ffmpeg",
+            "-i",
+            vid_input,
+            "-c:v",
+            "libvpx-vp9",
+            "-t",
+            "3",
+            "-vf",
+            f"scale={w}:{h}",
+            "-an",
+            output,
+        ]
+    )
+    remove(vid_input)
+    return output
 
 
 CMD_HELP.update(
