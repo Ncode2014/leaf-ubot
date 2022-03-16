@@ -44,7 +44,6 @@ lyricsgenius
 markdown
 natsort
 newthon==1.25.7
-numpy
 oauth2client
 pendulum
 Pillow
