@@ -14,9 +14,8 @@ import urllib.parse
 from asyncio import create_subprocess_shell as asyncSubprocess
 from asyncio.subprocess import PIPE as asyncPIPE
 from base64 import standard_b64encode
-from urllib.parse import urlparse
 from cgi import parse_header
-from random import choice
+from urllib.parse import urlparse
 
 import aiohttp
 import cloudscraper
