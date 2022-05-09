@@ -15,12 +15,15 @@ from asyncio import create_subprocess_shell as asyncSubprocess
 from asyncio.subprocess import PIPE as asyncPIPE
 from base64 import standard_b64encode
 from urllib.parse import urlparse
+from cgi import parse_header
+from random import choice
 
 import aiohttp
 import cloudscraper
 import lk21
 import requests
 from bs4 import BeautifulSoup
+from fake_headers import Headers
 from humanize import naturalsize
 from zippyshare_downloader import extract_info_coro
 
@@ -295,29 +298,23 @@ async def androidfilehost(url: str) -> str:
         reply = "`No AFH links found`\n"
         return reply
     fid = re.findall(r"\?fid=(.*)", link)[0]
-    session = requests.Session()
+    headers = Headers().generate()
+    res = requests.get(link)
     headers = {
-        "user-agent": "Mozilla/5.0 (Linux; Android 8.1.0; CPH1803) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.114 Mobile Safari/537.36"
+        "User-Agent": headers["User-Agent"],
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Referer": f"https://androidfilehost.com/?fid={fid}",
+        "X-MOD-SBB-CTYPE": "xhr",
+        "X-Requested-With": "XMLHttpRequest",
     }
-    res = session.get(link, headers=headers, allow_redirects=True)
-    headers = {
-        "origin": "https://androidfilehost.com",
-        "accept-encoding": "gzip, deflate, br",
-        "accept-language": "en-US,en;q=0.9",
-        "user-agent": "Mozilla/5.0 (Linux; Android 8.1.0; CPH1803) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.114 Mobile Safari/537.36",
-        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "x-mod-sbb-ctype": "xhr",
-        "accept": "*/*",
-        "referer": f"https://androidfilehost.com/?fid={fid}",
-        "authority": "androidfilehost.com",
-        "x-requested-with": "XMLHttpRequest",
-    }
-    data = {"submit": "submit", "action": "getdownloadmirrors", "fid": f"{fid}"}
+    data = {"submit": "submit", "action": "getdownloadmirrors", "fid": fid}
+
     mirrors = None
     reply = ""
-    error = "`Error: Can't find Mirrors for the link`\n"
+    error = "**ERROR:** `Can't find Mirrors for the link`\n"
+
     try:
-        req = session.post(
+        req = requests.post(
             "https://androidfilehost.com/libs/otf/mirrors.otf.php",
             headers=headers,
             data=data,
@@ -326,13 +323,16 @@ async def androidfilehost(url: str) -> str:
         mirrors = req.json()["MIRRORS"]
     except (json.decoder.JSONDecodeError, TypeError):
         reply += error
+
     if not mirrors:
         reply += error
         return reply
     for item in mirrors:
         name = item["name"]
         dl_url = item["url"]
-        reply += f"[{name}]({dl_url}) "
+        reply += f"[{name}]({dl_url}) | "
+    _, params = parse_header(requests.head(dl_url).headers["Content-Disposition"])
+    reply = f"Mirrors for `{params['filename']}`\n{reply.rstrip('| ')}"
     return reply
 
 
