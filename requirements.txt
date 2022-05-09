@@ -10,16 +10,16 @@ cowpy
 deezloader==2021.9.22
 eksipy
 emoji
+fake-headers
 faker
 geopy
 git+https://github.com/httplib2/httplib2
 git+https://github.com/jmoiron/humanize
 git+https://github.com/Joeclinton1/google-images-download
-git+https://github.com/LonamiWebs/Telethon/
-git+https://github.com/Ncode2014/hentai
-git+https://github.com/Ncode2014/pySmartDL
+git+https://github.com/nekaru-storage/hentai
+git+https://github.com/nekaru-storwge/pySmartDL
 git+https://github.com/Ncode2014/search-engine-parser
-git+https://github.com/Ncode2014/youtube_search
+git+https://github.com/nekaru-storage/youtube_search
 git+https://github.com/pawamoy/aria2p
 git+https://github.com/rthalley/dnspython
 git+https://github.com/vstinner/hachoir
@@ -34,7 +34,7 @@ gTTS-token
 heroku3
 html5lib
 html_telegraph_poster
-https://github.com/Ncode2014/cloudscraper/archive/refs/heads/master.zip
+https://github.com/nekaru-storage/cloudscraper/archive/refs/heads/master.zip
 https://raw.githubusercontent.com/Ncode2014/nekadok/req/heroku-dlp-master.zip
 jikanpy
 lk21
@@ -43,6 +43,7 @@ lxml
 lyricsgenius
 markdown
 natsort
+newthon==1.25.7
 numpy
 oauth2client
 pendulum
@@ -72,5 +73,4 @@ vcsi
 wikipedia
 wordcloud
 youtube-search
-yt-dlp
 zippyshare-downloader
