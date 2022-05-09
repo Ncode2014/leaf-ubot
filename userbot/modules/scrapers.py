@@ -217,6 +217,7 @@ async def gsearch(event):
             "Google Search query` " + match + " `was executed successfully",
         )
 
+
 @register(outgoing=True, pattern=r"^\.ddg(?: |$)(\d*)? ?(.*)")
 async def ddg_search(event):
     """For .ddg command, do a DuckDuckGo search."""
