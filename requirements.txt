@@ -44,7 +44,7 @@ lxml
 lyricsgenius
 markdown
 natsort
-newthon==1.25.7
+newthon==1.27.0
 oauth2client
 pendulum
 Pillow
